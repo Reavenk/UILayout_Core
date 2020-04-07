@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cc7b6c4ac79003498207f7e9f378ab6, type: 3}
+  m_Name: UILFactory
+  m_EditorClassIdentifier: 
+  buttonTextAttrib:
+    font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    pointSize: 12
+    color: {r: 0, g: 0, b: 0, a: 1}
+  buttonSprite: {fileID: 21300000, guid: 8f1ca12c51d62bc449de9b52faac2ffd, type: 3}
+  minButtonSize: {x: 0, y: 0}
+  buttonPadding:
+    left: 5
+    top: 5
+    right: 5
+    bot: 5
+  headerTextAttrib:
+    font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    pointSize: 20
+    color: {r: 0, g: 0, b: 0, a: 1}
+  headerSprite: {fileID: 21300000, guid: 1c2ac25275e959849bf9cca49f03ac3c, type: 3}
+  minHeaderSize: {x: 30, y: 30}
+  headerPadding:
+    left: 5
+    top: 5
+    right: 5
+    bot: 5
+  horizontalSplitterSprite: {fileID: 21300000, guid: 434d6afc225504746909ac15ead8c4ce,
+    type: 3}
+  verticalSplitterSprite: {fileID: 21300000, guid: 434d6afc225504746909ac15ead8c4ce,
+    type: 3}
+  minSplitterSize: {x: 4, y: 4}
+  horizontalScrollbarButtonSprite: {fileID: 0}
+  horizontalScrollbarSprite: {fileID: 0}
+  horizontalScrollbarThumbSprite: {fileID: 0}
+  verticalScrollbarButtonSprite: {fileID: 0}
+  verticalScrollbarSprite: {fileID: 0}
+  verticalScrollbarThumbSprite: {fileID: 0}
+  textTextAttrib:
+    font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    pointSize: 12
+    color: {r: 0, g: 0, b: 0, a: 1}

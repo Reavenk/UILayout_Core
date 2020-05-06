@@ -6,13 +6,14 @@ namespace PxPre
 {
     namespace UIL
     {
-        public class EleHeader : Ele
+        public class EleHeader : EleBaseRect
         {
             UnityEngine.UI.Image plate;
             UnityEngine.UI.Text text;
+            public PadRect border = new PadRect(10.0f, 10.0f, 10.0f, 10.0f);
 
-            public EleHeader(Ele parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public EleHeader(EleBaseRect parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
                 this._Create(
                     parent, 
@@ -22,13 +23,12 @@ namespace PxPre
                     fontPointSize, 
                     frame, 
                     padding, 
-                    flags, 
                     size, 
                     name);
             }
 
-            public EleHeader(Ele parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding, LFlag flags)
-                : base(parent, flags)
+            public EleHeader(EleBaseRect parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding)
+                : base(parent)
             {
                 this._Create(
                     parent, 
@@ -38,12 +38,11 @@ namespace PxPre
                     fontPointSize, 
                     frame, 
                     padding, 
-                    flags, 
                     new Vector2(-1.0f, -1.0f), 
                     "");
             }
 
-            protected void _Create(Ele parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding, LFlag flags, Vector2 size, string name)
+            protected void _Create(EleBaseRect parent, string text, Font font, Color fontColor, int fontPointSize, Sprite frame, PadRect padding, Vector2 size, string name)
             {
                 GameObject goPlate = new GameObject("HeaderPlate_" + name);
                 goPlate.transform.SetParent(parent.GetContentRect());
@@ -54,7 +53,7 @@ namespace PxPre
                 this.plate.sprite = frame;
                 this.plate.type = UnityEngine.UI.Image.Type.Sliced;
 
-                this.padding = padding;
+                this.border = padding;
 
                 GameObject goText = new GameObject("HeaderText_" + name);
                 goText.transform.SetParent(this.plate.rectTransform);
@@ -68,7 +67,7 @@ namespace PxPre
                 this.text.text      = text;
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, float width)
+            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width)
             {
                 Vector2 ret = new Vector2();
 
@@ -87,17 +86,17 @@ namespace PxPre
 
                 if(this.HasChildren() == true)
                 { 
-                    Vector2 v2 = this.GetMinSize(cache, width);
+                    Vector2 v2 = this.GetMinSize(cache, widths, width);
                     ret.x = Mathf.Max(ret.x, v2.x);
                     ret.y = Mathf.Max(ret.y, v2.y);
                 }
 
-                ret.x += this.padding.width;
-                ret.y += this.padding.height;
+                ret.x += this.border.width;
+                ret.y += this.border.height;
                 return ret;
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
+            public override Vector2 Layout(Dictionary<Ele, Vector2> cached, Dictionary<Ele, float> widths, Vector2 rectOffset, Vector2 offset, Vector2 size)
             {
                 this.plate.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
                 this.plate.rectTransform.sizeDelta = size;
@@ -114,28 +113,23 @@ namespace PxPre
                     float textWidth = tg.GetPreferredWidth(this.text.text, tgs);
                     float textHeight = tg.GetPreferredHeight(this.text.text, tgs);
 
-                    this.text.rectTransform.anchoredPosition = new Vector2(this.padding.left, -this.padding.top);
+                    this.text.rectTransform.anchoredPosition = new Vector2(this.border.left, -this.border.top);
                     this.text.rectTransform.sizeDelta = new Vector2(textWidth, textHeight);
                 }
 
                 if(this.HasChildren() == true)
                 { 
                     Vector2 internalSz = size;
-                    internalSz.x -= this.padding.width;
-                    internalSz.y -= this.padding.height;
-                    base.Layout(cached, rectOffset, offset, internalSz);
+                    internalSz.x -= this.border.width;
+                    internalSz.y -= this.border.height;
+                    base.Layout(cached, widths, rectOffset, offset, internalSz);
                 }
+
+                // TODO:
+                return size;
             }
 
-            public override RectTransform GetRT()
-            {
-                return this.plate.rectTransform;
-            }
-
-            public override RectTransform GetContentRect()
-            {
-                return this.plate.rectTransform;
-            }
+            public override RectTransform RT => this.plate.rectTransform;
 
             public override void Deconstruct()
             {

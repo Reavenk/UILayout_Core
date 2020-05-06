@@ -34,6 +34,14 @@ namespace PxPre
                 this.right  = all;
                 this.bot    = all;
             }
+
+            public Vector2 Pad(Vector2 v)
+            { 
+                return v + 
+                    new Vector2(
+                        this.left + this.right, 
+                        this.top + this.bot);
+            }
         }
     }
 }

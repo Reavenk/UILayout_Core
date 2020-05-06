@@ -6,23 +6,23 @@ namespace PxPre
 {
     namespace UIL
     {
-        public class EleSeparator : Ele
+        public class EleSeparator : EleBaseRect
         {
             UnityEngine.UI.Image img;
 
-            public EleSeparator(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public EleSeparator(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
-                this._Create(parent, sprite, flags, size, name);
+                this._Create(parent, sprite, size, name);
             }
 
-            public EleSeparator(Ele parent, Sprite sprite, LFlag flags)
-                : base(parent, flags)
+            public EleSeparator(EleBaseRect parent, Sprite sprite, LFlag flags)
+                : base(parent)
             { 
-                this._Create(parent, sprite, flags, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, sprite, new Vector2(-1.0f, -1.0f), "");
             }
 
-            protected void _Create(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name)
+            protected void _Create(EleBaseRect parent, Sprite sprite, Vector2 size, string name)
             { 
                 GameObject go = new GameObject("Separator_" + name);
                 go.transform.SetParent(parent.GetContentRect());
@@ -34,13 +34,16 @@ namespace PxPre
                 this.img.type = UnityEngine.UI.Image.Type.Sliced;
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
-            {
-                this.img.rectTransform.anchoredPosition = 
-                    new Vector2(rectOffset.x, -rectOffset.y);
+            public override RectTransform RT => this.img.rectTransform;
 
-                this.img.rectTransform.sizeDelta = 
-                    size;
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached,
+                Dictionary<Ele, float> widths, 
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
+            {
+                return base.Layout(cached, widths, rectOffset, offset, size);
             }
 
             public override bool CanHaveChildren()

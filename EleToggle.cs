@@ -6,13 +6,20 @@ namespace PxPre
 {
     namespace UIL
     {
-        public class EleToggle : Ele
+        public class EleToggle : EleBaseRect
         {
-            public EleToggle(Ele parent, string text, Sprite plateSprite, Sprite toggleSprite, float iconWidth, float separation, PadRect togglePad, LFlag flags, Vector2 size, string name = "")
+            UnityEngine.UI.Toggle toggle;
+            RectTransform rt;
+
+            public override RectTransform RT => this.rt;
+
+            public EleToggle(EleBaseRect parent, string text, Sprite plateSprite, Sprite toggleSprite, float iconWidth, float separation, PadRect togglePad, LFlag flags, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
             }
 
-            public EleToggle(Ele parent, string text, Sprite plateSprite, Sprite toggleSprite, float iconWidth, float separation, float pad, LFlag flags, Vector2 size, string name = "")
+            public EleToggle(EleBaseRect parent, string text, Sprite plateSprite, Sprite toggleSprite, float iconWidth, float separation, float pad, LFlag flags, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
             }
 
@@ -20,13 +27,22 @@ namespace PxPre
             { 
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, float width)
+            protected override Vector2 ImplCalcMinSize(
+                Dictionary<Ele, Vector2> cache, 
+                Dictionary<Ele, float> widths, 
+                float width)
             {
+                return Vector2.zero;
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached, 
+                Dictionary<Ele, float> widths, 
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
             {
-                base.Layout(cached, rectOffset, offset, size);
+                return base.Layout(cached, widths, rectOffset, offset, size);
             }
         }
     }

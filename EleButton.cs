@@ -5,39 +5,71 @@ using UnityEngine;
 namespace PxPre
 { 
     namespace UIL
-    { 
-        public class EleButton : Ele
-        { 
-            UnityEngine.UI.Button button;
+    {
+        public class EleButton : EleGenButton<UnityEngine.UI.Button>
+        {
+            public EleButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, Vector2 size, string name = "")
+                : base(parent, font, fontSize, fontColor, text, plateSprite, size, name)
+            {
+                this._Create(parent, font, fontSize, fontColor, text, plateSprite, size, name);
+            }
+
+            public EleButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite)
+                : base(parent, font, fontSize, fontColor, text, plateSprite)
+            {
+                this._Create(parent, font, fontSize, fontColor, text, plateSprite, new Vector2(-1.0f, -1.0f), "");
+            }
+
+            public EleButton(EleBaseRect parent, Sprite plateSprite, Vector2 size, string name = "")
+                : base(parent, plateSprite, size, name)
+            {
+                this._Create(parent, null, 0, Color.black, null, plateSprite, size, name);
+            }
+
+            public EleButton(EleBaseRect parent, Sprite plateSprite)
+                : base(parent, plateSprite)
+            {
+                this._Create(parent, null, 0, Color.black, null, plateSprite, new Vector2(-1.0f, -1.0f), "");
+            }
+        }
+
+        public class EleGenButton<BtnTy> : EleBaseRect
+            where BtnTy : UnityEngine.UI.Button
+            
+        {
+            BtnTy button;
             UnityEngine.UI.Image plate;
 
-            UnityEngine.UI.Text text = null;
+            public UnityEngine.UI.Text text = null;
+            public PadRect border = new PadRect(10.0f, 10.0f, 10.0f, 1.0f);
 
-            public EleButton(Ele parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public BtnTy Button {get{return this.button; } }
+
+            public EleGenButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
-                this._Create(parent, font, fontSize, fontColor, text, plateSprite, flags, size, name);
+                this._Create(parent, font, fontSize, fontColor, text, plateSprite, size, name);
             }
 
-            public EleButton(Ele parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, LFlag flags)
-                : base(parent, flags)
+            public EleGenButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite)
+                : base(parent)
             { 
-                this._Create(parent, font, fontSize, fontColor, text, plateSprite, flags, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, font, fontSize, fontColor, text, plateSprite, new Vector2(-1.0f, -1.0f), "");
             }
 
-            public EleButton(Ele parent, Sprite plateSprite, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public EleGenButton(EleBaseRect parent, Sprite plateSprite, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
-                this._Create(parent, null, 0, Color.black, null, plateSprite, flags, size, name);
+                this._Create(parent, null, 0, Color.black, null, plateSprite, size, name);
             }
 
-            public EleButton(Ele parent, Sprite plateSprite, LFlag flags)
-                : base(parent, flags)
+            public EleGenButton(EleBaseRect parent, Sprite plateSprite)
+                : base(parent)
             { 
-                this._Create(parent, null, 0, Color.black, null, plateSprite, flags, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, null, 0, Color.black, null, plateSprite, new Vector2(-1.0f, -1.0f), "");
             }
 
-            protected void _Create(Ele parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, LFlag flags, Vector2 size, string name)
+            protected void _Create(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, Vector2 size, string name)
             { 
                 GameObject go = new GameObject("Button_" + name);
 
@@ -45,7 +77,7 @@ namespace PxPre
                 go.Short().Identity();
 
                 this.plate = go.AddComponent<UnityEngine.UI.Image>();
-                this.button = go.AddComponent<UnityEngine.UI.Button>();
+                this.button = go.AddComponent<BtnTy>();
                 this.plate.Short().PivotTL().AnchorTL();
 
                 this.button.targetGraphic = this.plate;
@@ -63,20 +95,53 @@ namespace PxPre
                     this.text.color                  = fontColor;
                     this.text.fontSize               = fontSize;
                     this.text.horizontalOverflow     = HorizontalWrapMode.Overflow;
-                    this.text.alignment              = TextAnchor.LowerLeft;
-
-                    this.text.rectTransform.Short().Identity().AnchorTL().PivotTL().ZeroOffset();
+                    this.text.alignment              = TextAnchor.MiddleCenter;
+                    this.text.rectTransform.RTQ().ExpandParentFlush();
                 }
             }
 
-            public override RectTransform GetRT()
+            public override RectTransform RT
             {
-                return this.plate.rectTransform;
+                get{ return this.plate.rectTransform; }
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, float width)
+            protected override float ImplCalcMinSizeWidth(Dictionary<Ele, float> cache)
+            { 
+                float min = 0.0f;
+                if(this.sizer != null)
+                { 
+                    float szmin = this.sizer.GetMinWidth(cache);
+                    min = Mathf.Max(min, szmin);
+                }
+
+                if(this.text != null)
+                {
+                    TextGenerationSettings tgs =
+                        this.text.GetGenerationSettings(
+                            new Vector2(
+                                float.PositiveInfinity,
+                                float.PositiveInfinity));
+
+                    float width = this.text.cachedTextGenerator.GetPreferredWidth(this.text.text, tgs);
+                    width = Mathf.Ceil(width) + 1.0f;
+                    min = Mathf.Max(min, width);
+                }
+
+                min += this.border.width;
+                return min;
+            }
+
+            protected override Vector2 ImplCalcMinSize(
+                Dictionary<Ele, Vector2> cache, 
+                Dictionary<Ele, float> widths, 
+                float width)
             {
-                Vector2 ret = Vector2.zero;
+                Vector2 min = Vector2.zero;
+                if(this.sizer != null)
+                { 
+                    Vector2 szMin = this.sizer.GetMinSize(cache, widths, width);
+                    min = Vector2.Max(min, szMin);
+                }
 
                 if(this.text != null)
                 { 
@@ -85,59 +150,57 @@ namespace PxPre
                             new Vector2(
                                 float.PositiveInfinity, 
                                 float.PositiveInfinity));
+                
+                    Vector2 minTxt = 
+                        new Vector2(
+                            this.text.cachedTextGenerator.GetPreferredWidth(this.text.text, tgs),
+                            this.text.cachedTextGenerator.GetPreferredHeight(this.text.text, tgs));
 
-                    ret.x = this.text.cachedTextGenerator.GetPreferredWidth(this.text.text, tgs);
-                    ret.y = this.text.cachedTextGenerator.GetPreferredHeight(this.text.text, tgs);
+                    min = Vector2.Max(min, minTxt);
                 }
 
-                if(this.HasChildren() == true)
-                { 
-                    Vector2 sz = this.CalcMinSize_VerticalLayout(cache, width, 0.0f);
-                    ret.x = Mathf.Max(ret.x, sz.x);
-                    ret.y = Mathf.Max(ret.y, sz.y);
-                }
-                return ret + this.padding.dim;
+                min.x += this.border.width;
+                min.y += this.border.height;
+                min = Vector2.Max(min, this.minSize);
+                return min;
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached,
+                Dictionary<Ele, float> widths,
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
             {
                 this.plate.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
                 this.plate.rectTransform.sizeDelta = size;
 
                 if(this.text != null)
                 {
-                    Vector2 innerSz = size - this.padding.dim;
+                    //Vector2 innerSz = size - this.padding.dim;
 
-                    TextGenerationSettings tgs =
-                        this.text.GetGenerationSettings(
-                            new Vector2(
-                                innerSz.x,
-                                float.PositiveInfinity));
+                    //TextGenerationSettings tgs =
+                    //    this.text.GetGenerationSettings(
+                    //        new Vector2(
+                    //            innerSz.x,
+                    //            float.PositiveInfinity));
 
-                    TextGenerator tg = this.text.cachedTextGenerator;
-                    float width = tg.GetPreferredWidth(this.text.text, tgs);
-                    float height = tg.GetPreferredHeight(this.text.text, tgs);
+                    //TextGenerator tg = this.text.cachedTextGenerator;
+                    //float width = tg.GetPreferredWidth(this.text.text, tgs);
+                    //float height = tg.GetPreferredHeight(this.text.text, tgs);
 
-                    this.text.rectTransform.anchoredPosition = 
-                        new Vector2(
-                            this.padding.left + (innerSz.x - width)/2.0f,
-                            -this.padding.top - (innerSz.y - height)/2.0f);
+                    //this.text.rectTransform.anchoredPosition = 
+                    //    new Vector2(
+                    //        this.padding.left + (innerSz.x - width)/2.0f,
+                    //        -this.padding.top - (innerSz.y - height)/2.0f);
 
-                    this.text.rectTransform.sizeDelta = 
-                        new Vector2(
-                            width, 
-                            height);
+                    //this.text.rectTransform.sizeDelta = 
+                    //    new Vector2(
+                    //        width, 
+                    //        height);
                 }
 
-                if(this.HasChildren() == true)
-                {
-                    this.Layout_VerticalLayout(
-                        cached, 
-                        0.0f, 
-                        rectOffset, 
-                        offset, 
-                        size);
-                }
+                return base.Layout(cached, widths, rectOffset, offset, size);
             }
         }
     }

@@ -22,6 +22,12 @@ namespace PxPre
             public Vector2 minButtonSize;
             public PadRect buttonPadding;
 
+            public UnityEngine.UI.Button.Transition buttonTransition = UnityEngine.UI.Selectable.Transition.ColorTint;
+            public UnityEngine.UI.SpriteState buttonSpriteState = new UnityEngine.UI.SpriteState();
+            public Color buttonFontColor = Color.black;
+            public Font buttonFont;
+            public int buttonFontSize = 14;
+
             public TextAttrib headerTextAttrib;
             public Sprite headerSprite;
             public Vector2 minHeaderSize;
@@ -41,7 +47,59 @@ namespace PxPre
 
             public TextAttrib textTextAttrib;
 
-            public EleButton CreateButton(Ele parent, string text, LFlag flags, Vector2 size, string name = "")
+            public Sprite inputSprite;
+            public PadRect inputPadding;
+            public int inputFontSize = 14;
+            public Font inputFont;
+            public Color inputFontColor = Color.black;
+
+            internal UnityEngine.Events.UnityAction<UnityEngine.UI.Button> onCreateButton = null;
+
+            void ApplyButtonStyle(UnityEngine.UI.Button button, UnityEngine.UI.Text text, bool callback = false)
+            {
+                if(text != null)
+                { 
+                    text.fontSize   = this.buttonFontSize;
+                    text.font       = this.buttonFont;
+                    text.color      = this.buttonFontColor;
+
+                    text.rectTransform.offsetMin += new Vector2(this.buttonPadding.left, this.buttonPadding.bot);
+                    text.rectTransform.offsetMax += new Vector2(-this.buttonPadding.right, -this.buttonPadding.top);
+                }
+
+                button.spriteState = this.buttonSpriteState;
+                button.transition = this.buttonTransition;
+            }
+
+            void ApplyButtonStyle<BtnTy>(EleGenButton<BtnTy> ele)
+                where BtnTy : UnityEngine.UI.Button
+
+            { 
+                ele.border = this.buttonPadding;
+                this.ApplyButtonStyle(ele.Button, ele.text, true);
+            }
+
+            public EleGenButton<BtnTy> CreateButton<BtnTy>(EleBaseRect parent, string text, Vector2 size, string name = "")
+                where BtnTy : UnityEngine.UI.Button
+            {
+                EleGenButton<BtnTy> ele =
+                    new EleGenButton<BtnTy>(
+                        parent,
+                        this.buttonTextAttrib.font,
+                        this.buttonTextAttrib.pointSize,
+                        this.buttonTextAttrib.color,
+                        text,
+                        this.buttonSprite,
+                        size,
+                        name);
+
+                ele.border = this.buttonPadding;
+
+                this.ApplyButtonStyle(ele);
+                return ele;
+            }
+
+            public EleButton CreateButton(EleBaseRect parent, string text, Vector2 size, string name = "")
             { 
                 EleButton ele = 
                     new EleButton(
@@ -51,16 +109,32 @@ namespace PxPre
                         this.buttonTextAttrib.color,
                         text,
                         this.buttonSprite,
-                        flags,
                         size, 
                         name);
 
-                ele.padding = this.buttonPadding;
 
+
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
-            public EleButton CreateButton(Ele parent, string text, LFlag flags)
+            public EleGenButton<BtnTy> CreateButton<BtnTy>(EleBaseRect parent, string text)
+                where BtnTy : UnityEngine.UI.Button
+            {
+                EleGenButton<BtnTy> ele =
+                    new EleGenButton<BtnTy>(
+                        parent,
+                        this.buttonTextAttrib.font,
+                        this.buttonTextAttrib.pointSize,
+                        this.buttonTextAttrib.color,
+                        text,
+                        this.buttonSprite);
+
+                this.ApplyButtonStyle(ele);
+                return ele;
+            }
+
+            public EleButton CreateButton(EleBaseRect parent, string text)
             {
                 EleButton ele =
                     new EleButton(
@@ -69,16 +143,14 @@ namespace PxPre
                         this.buttonTextAttrib.pointSize,
                         this.buttonTextAttrib.color,
                         text,
-                        this.buttonSprite,
-                        flags);
+                        this.buttonSprite);
 
-                ele.padding = this.buttonPadding;
-
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
 
-            public EleButton CreateButton(Ele parent, LFlag flags, Vector2 size, string name = "")
+            public EleButton CreateButton(EleBaseRect parent, Vector2 size, string name = "")
             { 
                 EleButton ele = 
                     new EleButton(
@@ -88,16 +160,14 @@ namespace PxPre
                         this.buttonTextAttrib.color,
                         null,
                         this.buttonSprite,
-                        flags,
                         size,
                         name);
 
-                ele.padding = this.buttonPadding;
-
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
-            public EleButton CreateButton(Ele parent, LFlag flags)
+            public EleButton CreateButton(EleBaseRect parent)
             {
                 EleButton ele =
                     new EleButton(
@@ -106,56 +176,39 @@ namespace PxPre
                         this.buttonTextAttrib.pointSize,
                         this.buttonTextAttrib.color,
                         null,
-                        this.buttonSprite,
-                        flags);
+                        this.buttonSprite);
 
-                ele.padding = this.buttonPadding;
-
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
-            public EleButton CreateButton(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name = "")
+            public EleButton CreateButton(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
             {
                 EleButton ele = 
                     new EleButton(
                         parent,
                         sprite,
-                        flags,
                         size,
                         name);
 
-                ele.padding = this.buttonPadding;
-
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
-            public EleButton CreateButton(Ele parent, Sprite sprite, LFlag flags)
+            public EleButton CreateButton(EleBaseRect parent, Sprite sprite)
             {
                 EleButton ele =
                     new EleButton(
                         parent,
-                        sprite,
-                        flags);
+                        sprite);
 
-                ele.padding = this.buttonPadding;
-
+                this.ApplyButtonStyle(ele);
                 return ele;
             }
 
-            public EleHeader CreateHeader(Ele parent, string text, LFlag flags)
+            public EleHeader CreateHeader(EleBaseRect parent, string text)
             { 
                 EleHeader ele = 
-                    new EleHeader(parent, text , this.headerTextAttrib.font, this.headerTextAttrib.color, this.headerTextAttrib.pointSize, this.headerSprite, this.headerPadding, flags);
-
-                ele.padding = this.headerPadding;
-                ele.minSize = this.minHeaderSize;
-
-                return ele;
-            }
-
-            public EleHeader CreateExpandedHeader(Ele parent, string text, LFlag flags)
-            {
-                EleHeader ele =
                     new EleHeader(
                         parent, 
                         text, 
@@ -163,29 +216,51 @@ namespace PxPre
                         this.headerTextAttrib.color, 
                         this.headerTextAttrib.pointSize, 
                         this.headerSprite, 
-                        this.headerPadding, 
-                        flags|LFlag.GrowHoriz);
+                        this.headerPadding);
 
-                ele.padding = this.headerPadding;
+                ele.border = this.headerPadding;
                 ele.minSize = this.minHeaderSize;
 
                 return ele;
             }
 
-            public EleSeparator CreateSeparator(Ele parent, LFlag flags, Vector2 size)
+            public EleBoxSizer HorizontalSizer(EleBaseRect parent)
+            {
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Horiz);
+                return bs;
+            }
+
+            public EleBoxSizer VerticalSizer(EleBaseRect parent)
+            { 
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Vert);
+                return bs;
+            }
+
+            public EleBoxSizer HorizontalSizer(EleBaseSizer parent, float proportion, LFlag flags)
+            {
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Horiz, proportion, flags);
+                return bs;
+            }
+
+            public EleBoxSizer VerticalSizer(EleBaseSizer parent, float proportion, LFlag flags)
+            {
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Vert, proportion, flags);
+                return bs;
+            }
+
+            public EleSeparator CreateSeparator(EleBaseRect parent, Vector2 size)
             { 
                 EleSeparator ele = 
                     new EleSeparator(
                         parent, 
                         this.horizontalSplitterSprite, 
-                        flags, 
                         size, 
                         "");
 
                 return ele;
             }
 
-            public EleSeparator CreateHorizontalSeparator(Ele parent)
+            public EleSeparator CreateHorizontalSeparator(EleBaseRect parent)
             { 
                 EleSeparator ele = 
                     new EleSeparator(
@@ -198,7 +273,7 @@ namespace PxPre
                 return ele;
             }
 
-            public EleSeparator CreateVerticalSeparator(Ele parent)
+            public EleSeparator CreateVerticalSeparator(EleBaseRect parent)
             { 
                 EleSeparator ele = 
                     new EleSeparator(
@@ -211,7 +286,7 @@ namespace PxPre
                 return ele;
             }
 
-            public EleText CreateText(Ele parent, string text, bool wrap, LFlag flags, Vector2 size, string name = "")
+            public EleText CreateText(EleBaseRect parent, string text, bool wrap, Vector2 size, string name = "")
             { 
                 EleText ele = 
                     new EleText(
@@ -221,14 +296,13 @@ namespace PxPre
                         this.textTextAttrib.font, 
                         this.textTextAttrib.color, 
                         this.textTextAttrib.pointSize, 
-                        flags, 
                         size, 
                         name);
 
                 return ele;
             }
 
-            public EleText CreateText(Ele parent, string text, bool wrap, LFlag flags)
+            public EleText CreateText(EleBaseRect parent, string text, bool wrap)
             {
                 EleText ele = 
                     new EleText(
@@ -237,22 +311,44 @@ namespace PxPre
                         wrap,
                         this.textTextAttrib.font,
                         this.textTextAttrib.color,
-                        this.textTextAttrib.pointSize,
-                        flags);
+                        this.textTextAttrib.pointSize);
 
                 return ele;
             }
 
-            public EleImg CreateImage(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name = "")
+            public EleImg CreateImage(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
             { 
-                EleImg ret = new EleImg(parent, sprite, flags, size, name);
+                EleImg ret = new EleImg(parent, sprite, size, name);
                 return ret;
             }
             
-            public EleImg CreateImage(Ele parent, Sprite sprite, LFlag flags, string name = "")
+            public EleImg CreateImage(EleBaseRect parent, Sprite sprite, string name = "")
             { 
-                EleImg ret = new EleImg(parent, sprite, flags);
+                EleImg ret = new EleImg(parent, sprite);
                 return ret;
+            }
+
+            public ElePropGrid CreatePropertyGrid(EleBaseRect parent)
+            { 
+                ElePropGrid epg = new ElePropGrid(parent);
+                return epg;
+            }
+
+            public EleInput CreateInput(EleBaseRect parent, bool multiline = false)
+            { 
+                EleInput inp = 
+                    new EleInput(
+                        parent, 
+                        "", 
+                        this.inputFont, 
+                        this.inputFontColor, 
+                        this.inputFontSize, 
+                        multiline, 
+                        this.inputSprite,
+                        this.inputPadding,
+                        new Vector2(-1.0f, -1.0f));
+
+                return inp;
             }
             
             //public EleImg CreateHorizontalSpacer(Ele parent, int flags, Vector2 size)

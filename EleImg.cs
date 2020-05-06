@@ -6,23 +6,25 @@ namespace PxPre
 { 
     namespace UIL
     { 
-        public class EleImg : Ele
+        public class EleImg : EleBaseRect
         { 
             UnityEngine.UI.Image img;
 
-            public EleImg(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public UnityEngine.UI.Image Img {get{return this.img; } }
+
+            public EleImg(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
-                this._Create(parent, sprite, flags, size, name);
+                this._Create(parent, sprite, size, name);
             }
 
-            public EleImg(Ele parent, Sprite sprite, LFlag flags)
-                : base(parent, flags)
+            public EleImg(EleBaseRect parent, Sprite sprite)
+                : base(parent)
             { 
-                this._Create(parent, sprite, flags, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, sprite, new Vector2(-1.0f, -1.0f), "");
             }
 
-            protected void _Create(Ele parent, Sprite sprite, LFlag flags, Vector2 size, string name = "")
+            protected void _Create(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
             { 
                 GameObject go = new GameObject("Image_" + name);
                 go.transform.SetParent(parent.GetContentRect());
@@ -34,56 +36,50 @@ namespace PxPre
                 this.img.type = UnityEngine.UI.Image.Type.Simple;
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, float width)
+            protected override float ImplCalcMinSizeWidth(Dictionary<Ele, float> cache)
             {
-                Vector2 ret = new Vector2(0.0f, 0.0f);
+                float f = base.ImplCalcMinSizeWidth(cache);
 
-                if(this.size.x >= 0.0f || this.size.y >= 0.0f)
-                    ret = this.size;
-                else if(this.img.sprite != null)
-                {
-                    Rect r = this.img.sprite.rect;
+                Sprite sprite = this.img.sprite;
+                if (sprite != null)
+                    f = Mathf.Max(sprite.rect.width, this.minSize.x);
 
-                    ret = 
-                        new Vector2(
-                            r.width, 
-                            r.height);
-                }
+                return f;
+            }
 
-                if(this.HasChildren() == true)
+            protected override Vector2 ImplCalcMinSize(
+                Dictionary<Ele, Vector2> cache,
+                Dictionary<Ele, float> widths,
+                float width)
+            {
+                Vector2 mindef = base.ImplCalcMinSize(cache, widths, width);
+                Vector2 min = this.minSize;
+
+                Sprite sprite = this.img.sprite;
+                if (sprite != null)
                 { 
-                    Vector2 chsz = this.CalcMinSize_VerticalLayout(cache, 0.0f, width);
-                    ret.x = Mathf.Max(ret.x, chsz.x);
-                    ret.y = Mathf.Max(ret.y, chsz.y);
+                    Vector2 spriteMin = sprite.rect.size;
+
+                    min.x = Mathf.Max(min.x, spriteMin.x);
+                    min.y = Mathf.Max(min.y, spriteMin.y);
                 }
 
-                return ret;
+                min.x = Mathf.Max(mindef.x, min.x);
+                min.y = Mathf.Max(mindef.y, min.y);
+
+                return min;
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
-            {
-                this.img.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
-                this.img.rectTransform.sizeDelta = size;
+            public override RectTransform RT => this.img.rectTransform;
 
-                if(this.HasChildren() == true)
-                {
-                    this.Layout_VerticalLayout(
-                        cached, 
-                        0.0f, 
-                        rectOffset, 
-                        offset, 
-                        size);
-                }
-            }
-
-            public override RectTransform GetRT()
-            {
-                return this.img.rectTransform;
-            }
-
-            public override RectTransform GetContentRect()
-            {
-                return this.img.rectTransform;
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached, 
+                Dictionary<Ele, float> widths, 
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
+            { 
+                return base.Layout(cached, widths, rectOffset, offset, size);
             }
         }
     }

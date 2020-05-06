@@ -6,28 +6,41 @@ namespace PxPre
 {
     namespace UIL
     {
-        public class EleHost : Ele
+        public class EleHost : EleBaseRect
         {
             RectTransform rt;
 
             public EleHost(RectTransform host, string name = "")
-                : base(null, 0, new Vector2(-1.0f, -1.0f), name)
+                : base(null, new Vector2(-1.0f, -1.0f), name)
             { 
                 this.rt = host;
             }
 
-            public override RectTransform GetRT()
-            {
-                return this.rt;
-            }
-
+            public override RectTransform RT => this.rt;
+            
             public void LayoutInRT()
             { 
                 Rect r = this.rt.rect;
-                Dictionary<Ele, Vector2> cache = new Dictionary<Ele, Vector2>();
+                Dictionary<Ele, float> widths = new Dictionary<Ele, float>();
+                Dictionary<Ele, Vector2> cached = new Dictionary<Ele, Vector2>();
 
-                this.CalcMinSize(cache, r.width);
-                this.Layout(cache, Vector2.zero, Vector2.zero, r.size);
+                this.GetMinWidth(widths);
+                this.GetMinSize(cached, widths, r.width);
+
+                Vector2 ret = Vector2.zero;
+                if (this.sizer != null)
+                {
+                    Vector2 szRet = 
+                        this.sizer.Layout(
+                            cached, 
+                            widths, 
+                            Vector2.zero, 
+                            Vector2.zero, 
+                            r.size);
+
+                    ret = 
+                        Vector2.Max(ret, szRet);
+                }
             }
 
             public void PrepareTopLeftUse()

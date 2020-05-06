@@ -6,24 +6,24 @@ namespace PxPre
 { 
     namespace UIL
     { 
-        public class EleText : Ele
+        public class EleText : EleBaseRect
         { 
             public UnityEngine.UI.Text text;
             bool wrap = false;
 
-            public EleText(Ele parent, string text, bool wrap, Font font, Color color, int fontSize, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
+            public EleText(EleBaseRect parent, string text, bool wrap, Font font, Color color, int fontSize, Vector2 size, string name = "")
+                : base(parent, size, name)
             { 
-                this._Create(parent, text, wrap, font, color, fontSize, flags, size, name);
+                this._Create(parent, text, wrap, font, color, fontSize, size, name);
             }
 
-            public EleText(Ele parent, string text, bool wrap, Font font, Color color, int fontSize, LFlag flags)
-                : base(parent, flags, new Vector2(-1.0f, -1.0f), "")
+            public EleText(EleBaseRect parent, string text, bool wrap, Font font, Color color, int fontSize)
+                : base(parent, new Vector2(-1.0f, -1.0f), "")
             {
-                this._Create(parent, text, wrap, font, color, fontSize, flags, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, text, wrap, font, color, fontSize, new Vector2(-1.0f, -1.0f), "");
             }
 
-            protected void _Create(Ele parent, string text, bool wrap, Font font, Color color, int fontSize, LFlag flags, Vector2 size, string name)
+            protected void _Create(EleBaseRect parent, string text, bool wrap, Font font, Color color, int fontSize, Vector2 size, string name)
             {
                 GameObject go = new GameObject("Text_" + name);
                 go.transform.SetParent(parent.GetContentRect());
@@ -50,32 +50,49 @@ namespace PxPre
                 this.text.rectTransform.Short().Identity();
             }
 
-            public override void Layout(Dictionary<Ele, Vector2> cached, Vector2 rectOffset, Vector2 offset, Vector2 size)
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached,
+                Dictionary<Ele, float> widths,
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
             { 
-                this.text.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
-                this.text.rectTransform.sizeDelta = size;
+                Vector2 ret = base.Layout(cached, widths, rectOffset, offset, size);
+                return ret;
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, float width)
+            protected override float ImplCalcMinSizeWidth(Dictionary<Ele, float> cache)
+            {
+                if (this.text.font == null)
+                    return 0.0f;
+
+                TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(0.0f, Mathf.Infinity));
+                TextGenerator tg = this.text.cachedTextGeneratorForLayout;
+
+                float ret = tg.GetPreferredWidth(this.text.text, tgs);
+                return Mathf.Ceil(ret) + 1.0f;
+            }
+
+            protected override Vector2 ImplCalcMinSize(
+                Dictionary<Ele, Vector2> cache, 
+                Dictionary<Ele, float> widths, 
+                float width)
             { 
                 if(this.text.font == null)
                     return new Vector2(0.0f, 0.0f);
 
                 TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(width, Mathf.Infinity));
-                float x = this.text.cachedTextGeneratorForLayout.GetPreferredWidth(this.text.text, tgs);
-                float y = this.text.cachedTextGeneratorForLayout.GetPreferredHeight(this.text.text, tgs);
+                TextGenerator tg = this.text.cachedTextGeneratorForLayout;
+
+                float x = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
+                float y = Mathf.Ceil(tg.GetPreferredHeight(this.text.text, tgs)) + 1.0f;
 
                 return new Vector2(x,y);
             }
 
-            public override RectTransform GetRT()
+            public override RectTransform RT
             {
-                return this.text.rectTransform;
-            }
-
-            public override RectTransform GetContentRect()
-            {
-                return this.text.rectTransform;
+                get{ return this.text.rectTransform; }
             }
         }
     }

@@ -8,17 +8,44 @@ namespace PxPre
     { 
         public class EleSpace : Ele
         { 
-            public EleSpace(Ele parent, LFlag flags, Vector2 size, string name = "")
-                : base(parent, flags, size, name)
-            { }
+            Vector2 space;
+            bool active;
 
-            public EleSpace(Ele parent, LFlag flags)
-                : base(parent, flags, new Vector2(-1.0f, -1.0f), "")
-            { }
+            public EleSpace(float space)
+                : base()
+            { 
+                this.space = new Vector2(space, space);
+            }
 
-            public override bool CanHaveChildren()
+            public override bool Active => this.active;
+
+            public EleSpace(Vector2 size, string name = "")
+                : base()
+            { 
+                this.space = size;
+            }
+
+            protected override float ImplCalcMinSizeWidth(Dictionary<Ele, float> cache)
+            { 
+                return this.space.x;
+            }
+
+            protected override Vector2 ImplCalcMinSize(
+                Dictionary<Ele, Vector2> cache,
+                Dictionary<Ele, float> widths,
+                float width)
             {
-                return false;
+                return this.space;
+            }
+
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached,
+                Dictionary<Ele, float> widths, 
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size)
+            {
+                return size;
             }
         }
     }

@@ -10,6 +10,7 @@ namespace PxPre
         {
             protected string name;
             protected EleBaseSizer sizer = null;
+            public EleBaseSizer Sizer { get{return this.sizer; } }
 
             EleBaseRect parent;
             EleBaseRect Parent { get { return this.parent; } }
@@ -106,13 +107,14 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache,
                 Dictionary<Ele, float> widths, 
-                float width)
+                float width,
+                bool collapsable = true)
             {
                 Vector2 min = this.minSize;
 
                 if(this.sizer != null)
                 {
-                    Vector2 szmin = this.sizer.GetMinSize(cache, widths, width);
+                    Vector2 szmin = this.sizer.GetMinSize(cache, widths, width, collapsable);
                     min = Vector2.Max(min, szmin);
                 }
                 return min;
@@ -123,7 +125,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
 
                 RectTransform rt = this.RT;
@@ -133,7 +136,7 @@ namespace PxPre
                 Vector2 ret = size;
                 if(this.sizer != null)
                 { 
-                    Vector2 szRet = this.sizer.Layout(cached, widths, Vector2.zero, offset, size);
+                    Vector2 szRet = this.sizer.Layout(cached, widths, Vector2.zero, offset, size, collapsable);
                     ret = Vector2.Max(ret, szRet);
                 }
 

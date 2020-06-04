@@ -201,6 +201,15 @@ public struct RTQuick
         this.rt.offsetMax = new Vector2(x, y);
         return this;
     }
+
+    public RTQuick Identity()
+    { 
+        this.rt.localScale = Vector3.one;
+        this.rt.localPosition = Vector3.zero;
+        this.rt.localRotation = Quaternion.identity;
+
+        return this;
+    }
 }
 
 public static class RTQuickUtil
@@ -243,6 +252,16 @@ public static class RTQuickUtil
     public static RTQuick RTQ(this UnityEngine.UI.Graphic gr)
     { 
         return new RTQuick(gr);
+    }
+
+    public static RTQuick RTQ(this GameObject go)
+    { 
+        RectTransform rt = go.GetComponent<RectTransform>();
+
+        if(rt == null)
+            rt = go.AddComponent<RectTransform>();
+
+        return new RTQuick(rt);
     }
 }
 

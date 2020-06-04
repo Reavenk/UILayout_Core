@@ -29,20 +29,20 @@ namespace PxPre
 
             public PadRect border = new PadRect();
 
-            public EleBoxSizer(EleBaseRect parent, Direction direction)
-                : base(parent)
+            public EleBoxSizer(EleBaseRect parent, Direction direction, string name)
+                : base(parent,name)
             {
                 this.direction = direction;
             }
 
-            public EleBoxSizer(EleBaseSizer parent, Direction direction, float proportion, LFlag flags)
-                : base(parent, proportion, flags)
+            public EleBoxSizer(EleBaseSizer parent, Direction direction, float proportion, LFlag flags, string name = "")
+                : base(parent, proportion, flags, name)
             {
                 this.direction = direction;
             }
 
-            public EleBoxSizer(Direction direction)
-                : base()
+            public EleBoxSizer(Direction direction, string name = "")
+                : base(name)
             { 
                 this.direction = direction;
             }
@@ -65,12 +65,13 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache,
                 Dictionary<Ele, float> widths,
-                float width)
+                float width,
+                bool collapsable = true)
             {
                 if (this.direction == Direction.Horiz)
-                    return this.ImplCalcMinSize_Horiz(cache, widths, width);
+                    return this.ImplCalcMinSize_Horiz(cache, widths, width, collapsable);
 
-                return this.ImplCalcMinSize_Vert(cache, widths, width);
+                return this.ImplCalcMinSize_Vert(cache, widths, width, collapsable);
             }
 
             public override Vector2 Layout(
@@ -78,12 +79,13 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             { 
                 if(this.direction == Direction.Horiz)
-                    return this.Layout_Horiz(cached, widths, rectOffset, offset, size);
+                    return this.Layout_Horiz(cached, widths, rectOffset, offset, size, collapsable);
 
-                return this.Layout_Vert(cached, widths, rectOffset, offset, size);
+                return this.Layout_Vert(cached, widths, rectOffset, offset, size, collapsable);
             }
 
             float ImplCalcMinSize_VertWidth(Dictionary<Ele, float> cache)
@@ -103,10 +105,14 @@ namespace PxPre
                 return xMax;
             }
 
-            Vector2 ImplCalcMinSize_Vert(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width)
+            Vector2 ImplCalcMinSize_Vert(
+                Dictionary<Ele, Vector2> cache, 
+                Dictionary<Ele, float> widths, 
+                float width, 
+                bool collapsable)
             { 
                 Vector2 ret = Vector2.zero;
-                float usableWidth = ret.x -= this.border.width;
+                ret.x -= this.border.width;
                 bool atleastOne = false;
                 foreach(PairedLayoutData pld in this.entries)
                 { 
@@ -114,15 +120,17 @@ namespace PxPre
                         ret.y += this.padding;
 
                     Vector2 sz;
-                    if ((pld.style & LFlag.GrowHoriz) != 0)
-                        sz = pld.ele.GetMinSize(cache, widths, width);
+                    LFlag pldFlag = GetFinalFlags(pld.style, collapsable);
+                    if ((pldFlag & LFlag.GrowHoriz) != 0)
+                        sz = pld.ele.GetMinSize(cache, widths, width, collapsable);
                     else
-                        sz = pld.ele.GetMinSize(cache, widths, pld.ele.GetMinWidth(widths));
+                        sz = pld.ele.GetMinSize(cache, widths, pld.ele.GetMinWidth(widths), collapsable);
                     
                     ret.x = Mathf.Max(sz.x, ret.x);
                     ret.y += sz.y;
                 }
                 ret.y += this.border.height;
+                ret.x += this.border.width;
                 return ret;
             }
 
@@ -131,7 +139,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable)
             {
 
                 size.x -= this.border.width;
@@ -152,7 +161,7 @@ namespace PxPre
                     else
                         totalMinY += this.padding;
 
-                    Vector2 v2 = pld.ele.GetMinSize(cached, widths, size.x);
+                    Vector2 v2 = pld.ele.GetMinSize(cached, widths, size.x, collapsable);
                     maxX = Mathf.Max(maxX, size.x);
                     totalMinY += v2.y;
 
@@ -171,7 +180,7 @@ namespace PxPre
                     else
                         fy += this.padding;
 
-                    Vector2 m = pld.ele.GetMinSize(cached, widths, size.x);
+                    Vector2 m = pld.ele.GetMinSize(cached, widths, size.x, collapsable);
                     float eleHeight = m.y;
 
                     if(pld.prop != 0.0f)
@@ -184,18 +193,20 @@ namespace PxPre
                     float feleSzX = m.x;
                     float feleSzY = m.y;
 
-                    if((pld.style & LFlag.GrowHoriz) != 0)
+                    LFlag pldFlag = GetFinalFlags(pld.style, collapsable);
+
+                    if ((pldFlag & LFlag.GrowHoriz) != 0)
                         feleSzX = maxX;
-                    else if((pld.style & LFlag.AlignHorizCenter) != 0)
+                    else if((pldFlag & LFlag.AlignHorizCenter) != 0)
                         feleX += (maxX - m.x) * 0.5f;
-                    else if((pld.style & LFlag.AlignRight) != 0)
+                    else if((pldFlag & LFlag.AlignRight) != 0)
                         feleX += maxX - m.x;
 
-                    if((pld.style & LFlag.GrowVert) != 0)
+                    if((pldFlag & LFlag.GrowVert) != 0)
                         feleSzY = eleHeight;
-                    else if((pld.style & LFlag.AlignVertCenter) != 0)
+                    else if((pldFlag & LFlag.AlignVertCenter) != 0)
                         feleY += (eleHeight - m.y) * 0.5f;
-                    else if((pld.style & LFlag.AlignBot) != 0)
+                    else if((pldFlag & LFlag.AlignBot) != 0)
                         feleY += eleHeight - m.y;
 
                     pld.ele.Layout(
@@ -203,7 +214,8 @@ namespace PxPre
                         widths,
                         rectOffset + new Vector2(feleX, feleY), 
                         offset + new Vector2(feleX, feleY), 
-                        new Vector2(feleSzX, feleSzY));
+                        new Vector2(feleSzX, feleSzY),
+                        collapsable);
 
                     fy += eleHeight;
                 }
@@ -238,15 +250,16 @@ namespace PxPre
                 return fx;
             }
 
-            Vector2 ImplCalcMinSize_Horiz(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width)
+            Vector2 ImplCalcMinSize_Horiz(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width, bool collapsable)
             {
-                float xBuild = 0.0f;
-                float yMax = 0.0f;
+                float xBuild = 0.0f;        // The total width of everything before allocating proportions
+                float yMax = 0.0f;          // The total height calculated.
 
                 float usableWidth = width - this.border.width;
                 float totalProportions = 0.0f;
 
                 bool atleastone = false;
+                // First pass, accumulate xBuild
                 foreach (PairedLayoutData pld in this.entries)
                 {
                     if(atleastone == false)
@@ -258,7 +271,7 @@ namespace PxPre
                     totalProportions += pld.prop;
                 }
 
-                float distrSpace = Mathf.Max(0.0f, width - xBuild);
+                float distrSpace = Mathf.Max(0.0f, usableWidth - xBuild);
 
                 foreach(PairedLayoutData pld in this.entries)
                 { 
@@ -268,7 +281,7 @@ namespace PxPre
                     else
                         fx += pld.prop / totalProportions * distrSpace;
 
-                    Vector2 sz = pld.ele.GetMinSize(cache, widths, fx);
+                    Vector2 sz = pld.ele.GetMinSize(cache, widths, fx, collapsable);
                     yMax = Mathf.Max(yMax, sz.y);
                 }
 
@@ -283,7 +296,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable)
             {
                 // TODO: The entire implementation!
                 size.x -= this.border.width;
@@ -304,7 +318,7 @@ namespace PxPre
                     else
                         totalMinX += this.padding;
 
-                    Vector2 v2 = pld.ele.GetMinSize(cached, widths, size.x);
+                    Vector2 v2 = pld.ele.GetMinSize(cached, widths, size.x, collapsable);
                     maxY = Mathf.Max(maxY, size.y);
                     totalMinX += v2.x;
 
@@ -323,7 +337,7 @@ namespace PxPre
                     else
                         fx += this.padding;
 
-                    Vector2 m = pld.ele.GetMinSize(cached, widths, size.x);
+                    Vector2 m = pld.ele.GetMinSize(cached, widths, size.x, collapsable);
                     float eleWidth = m.x;
 
                     if (pld.prop != 0.0f)
@@ -336,18 +350,20 @@ namespace PxPre
                     float feleSzX = m.x;
                     float feleSzY = m.y;
 
-                    if ((pld.style & LFlag.GrowHoriz) != 0)
+                    LFlag pldFlag = GetFinalFlags(pld.style, collapsable);
+
+                    if ((pldFlag & LFlag.GrowHoriz) != 0)
                         feleSzX = eleWidth;
-                    else if ((pld.style & LFlag.AlignHorizCenter) != 0)
+                    else if ((pldFlag & LFlag.AlignHorizCenter) != 0)
                         feleX += (eleWidth - m.x) * 0.5f;
-                    else if ((pld.style & LFlag.AlignRight) != 0)
+                    else if ((pldFlag & LFlag.AlignRight) != 0)
                         feleX += eleWidth - m.x;
 
-                    if ((pld.style & LFlag.GrowVert) != 0)
+                    if ((pldFlag & LFlag.GrowVert) != 0)
                         feleSzY = maxY;
-                    else if ((pld.style & LFlag.AlignVertCenter) != 0)
+                    else if ((pldFlag & LFlag.AlignVertCenter) != 0)
                         feleY += (maxY - m.y) * 0.5f;
-                    else if ((pld.style & LFlag.AlignBot) != 0)
+                    else if ((pldFlag & LFlag.AlignBot) != 0)
                         feleY += maxY - m.y;
 
                     pld.ele.Layout(
@@ -355,16 +371,16 @@ namespace PxPre
                         widths,
                         rectOffset + new Vector2(feleX, feleY),
                         offset + new Vector2(feleX, feleY),
-                        new Vector2(feleSzX, feleSzY));
+                        new Vector2(feleSzX, feleSzY),
+                        collapsable);
 
                     fx += eleWidth;
                 }
 
-                if (atleastone == true)
-                {
-                    fx += this.border.width;
-                    fy += this.border.height;
-                }
+                fy += maxY;
+
+                fx += this.border.right;
+                fy += this.border.bot;
 
                 return new Vector2(fx, fy);
             }

@@ -48,7 +48,7 @@ namespace PxPre
                 goPlate.transform.SetParent(parent.GetContentRect());
 
                 this.plate = goPlate.AddComponent<UnityEngine.UI.Image>();
-                this.plate.rectTransform.Short().Identity().AnchorTL().PivotTL().ZeroOffset();
+                this.plate.rectTransform.RTQ().Identity().TopLeftAnchorsPivot().ZeroOffsets();
 
                 this.plate.sprite = frame;
                 this.plate.type = UnityEngine.UI.Image.Type.Sliced;
@@ -59,7 +59,7 @@ namespace PxPre
                 goText.transform.SetParent(this.plate.rectTransform);
 
                 this.text = goText.AddComponent<UnityEngine.UI.Text>();
-                this.text.rectTransform.Short().Identity().AnchorTL().PivotTL().ZeroOffset();
+                this.text.rectTransform.RTQ().Identity().TopLeftAnchorsPivot().ZeroOffsets();
 
                 this.text.font      = font;
                 this.text.color     = fontColor;
@@ -67,7 +67,7 @@ namespace PxPre
                 this.text.text      = text;
             }
 
-            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width)
+            protected override Vector2 ImplCalcMinSize(Dictionary<Ele, Vector2> cache, Dictionary<Ele, float> widths, float width, bool collapsable = true)
             {
                 Vector2 ret = new Vector2();
 
@@ -96,7 +96,13 @@ namespace PxPre
                 return ret;
             }
 
-            public override Vector2 Layout(Dictionary<Ele, Vector2> cached, Dictionary<Ele, float> widths, Vector2 rectOffset, Vector2 offset, Vector2 size)
+            public override Vector2 Layout(
+                Dictionary<Ele, Vector2> cached, 
+                Dictionary<Ele, float> widths, 
+                Vector2 rectOffset, 
+                Vector2 offset, 
+                Vector2 size,
+                bool collapsable = true)
             {
                 this.plate.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
                 this.plate.rectTransform.sizeDelta = size;

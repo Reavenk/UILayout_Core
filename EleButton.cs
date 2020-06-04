@@ -11,25 +11,25 @@ namespace PxPre
             public EleButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite, Vector2 size, string name = "")
                 : base(parent, font, fontSize, fontColor, text, plateSprite, size, name)
             {
-                this._Create(parent, font, fontSize, fontColor, text, plateSprite, size, name);
+                //this._Create(parent, font, fontSize, fontColor, text, plateSprite, size, name);
             }
 
             public EleButton(EleBaseRect parent, Font font, int fontSize, Color fontColor, string text, Sprite plateSprite)
                 : base(parent, font, fontSize, fontColor, text, plateSprite)
             {
-                this._Create(parent, font, fontSize, fontColor, text, plateSprite, new Vector2(-1.0f, -1.0f), "");
+                //this._Create(parent, font, fontSize, fontColor, text, plateSprite, new Vector2(-1.0f, -1.0f), "");
             }
 
             public EleButton(EleBaseRect parent, Sprite plateSprite, Vector2 size, string name = "")
                 : base(parent, plateSprite, size, name)
             {
-                this._Create(parent, null, 0, Color.black, null, plateSprite, size, name);
+                //this._Create(parent, null, 0, Color.black, null, plateSprite, size, name);
             }
 
             public EleButton(EleBaseRect parent, Sprite plateSprite)
                 : base(parent, plateSprite)
             {
-                this._Create(parent, null, 0, Color.black, null, plateSprite, new Vector2(-1.0f, -1.0f), "");
+                //this._Create(parent, null, 0, Color.black, null, plateSprite, new Vector2(-1.0f, -1.0f), "");
             }
         }
 
@@ -39,6 +39,7 @@ namespace PxPre
         {
             BtnTy button;
             UnityEngine.UI.Image plate;
+            public UnityEngine.UI.Image Plate { get { return this.plate; } }
 
             public UnityEngine.UI.Text text = null;
             public PadRect border = new PadRect(10.0f, 10.0f, 10.0f, 1.0f);
@@ -74,11 +75,11 @@ namespace PxPre
                 GameObject go = new GameObject("Button_" + name);
 
                 go.transform.SetParent(parent.GetContentRect());
-                go.Short().Identity();
+                go.RTQ().Identity();
 
                 this.plate = go.AddComponent<UnityEngine.UI.Image>();
                 this.button = go.AddComponent<BtnTy>();
-                this.plate.Short().PivotTL().AnchorTL();
+                this.plate.RTQ().TopLeftAnchorsPivot();
 
                 this.button.targetGraphic = this.plate;
                 this.plate.sprite = plateSprite;
@@ -87,15 +88,16 @@ namespace PxPre
                 if(string.IsNullOrEmpty(text) == false)
                 { 
                     GameObject goChild = new GameObject("ButtonText_" + name);
-                    goChild.transform.SetParent(go.transform);
+                    goChild.transform.SetParent(go.transform, false);
 
                     this.text = goChild.AddComponent<UnityEngine.UI.Text>();
-                    this.text.text                   = text;
-                    this.text.font                   = font;
-                    this.text.color                  = fontColor;
-                    this.text.fontSize               = fontSize;
-                    this.text.horizontalOverflow     = HorizontalWrapMode.Overflow;
-                    this.text.alignment              = TextAnchor.MiddleCenter;
+                    this.text.text                      = text;
+                    this.text.font                      = font;
+                    this.text.color                     = fontColor;
+                    this.text.fontSize                  = fontSize;
+                    this.text.horizontalOverflow        = HorizontalWrapMode.Overflow;
+                    this.text.verticalOverflow          = VerticalWrapMode.Overflow;
+                    this.text.alignment                 = TextAnchor.MiddleCenter;
                     this.text.rectTransform.RTQ().ExpandParentFlush();
                 }
             }
@@ -122,6 +124,8 @@ namespace PxPre
                                 float.PositiveInfinity,
                                 float.PositiveInfinity));
 
+                    tgs.scaleFactor = 1.0f;
+
                     float width = this.text.cachedTextGenerator.GetPreferredWidth(this.text.text, tgs);
                     width = Mathf.Ceil(width) + 1.0f;
                     min = Mathf.Max(min, width);
@@ -134,7 +138,8 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache, 
                 Dictionary<Ele, float> widths, 
-                float width)
+                float width,
+                bool collapsable = true)
             {
                 Vector2 min = Vector2.zero;
                 if(this.sizer != null)
@@ -150,11 +155,16 @@ namespace PxPre
                             new Vector2(
                                 float.PositiveInfinity, 
                                 float.PositiveInfinity));
-                
+
+                    tgs.scaleFactor = 1.0f;
+
                     Vector2 minTxt = 
                         new Vector2(
                             this.text.cachedTextGenerator.GetPreferredWidth(this.text.text, tgs),
                             this.text.cachedTextGenerator.GetPreferredHeight(this.text.text, tgs));
+
+                    minTxt.x = Mathf.Ceil(minTxt.x) + 1.0f;
+                    minTxt.y = Mathf.Ceil(minTxt.y) + 1.0f;
 
                     min = Vector2.Max(min, minTxt);
                 }
@@ -170,7 +180,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
                 this.plate.rectTransform.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
                 this.plate.rectTransform.sizeDelta = size;

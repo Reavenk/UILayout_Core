@@ -85,9 +85,11 @@ namespace PxPre
                 this.text.color = fontColor;
                 this.text.font = font;
                 this.text.fontSize = pointSize;
+                this.text.verticalOverflow = VerticalWrapMode.Overflow;
                 this.placeholder.color = new Color(fontColor.r, fontColor.g, fontColor.b, fontColor.a * 0.5f);
                 this.placeholder.font = font;
                 this.placeholder.fontSize = pointSize;
+                this.placeholder.verticalOverflow = VerticalWrapMode.Overflow;
 
                 this.input.lineType = 
                     multiline ? 
@@ -108,7 +110,8 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache, 
                 Dictionary<Ele, float> widths, 
-                float width)
+                float width,
+                bool collapsable = true)
             {
                 TextGenerator tg = this.text.cachedTextGenerator;
                 TextGenerationSettings tgs = 
@@ -127,7 +130,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths, 
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
                 //return base.Layout(cached, widths, rectOffset, offset, size);
                 base.Layout(cached, widths, rectOffset, offset, size);

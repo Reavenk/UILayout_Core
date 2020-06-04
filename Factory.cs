@@ -10,23 +10,74 @@ namespace PxPre
         public class Factory : ScriptableObject
         {
             [System.Serializable]
-            public struct TextAttrib
+            public class TextAttrib
             { 
                 public Font font;
-                public int pointSize;
-                public Color color;
+                public int fontSize = 14;
+                public Color color = Color.black;
+
+                public void Apply(UnityEngine.UI.Text text)
+                { 
+                    text.font = this.font;
+                    text.fontSize = this.fontSize;
+                    text.color = this.color;
+                }
+
+                public TextAttrib Clone()
+                { 
+                    TextAttrib ret = new TextAttrib();
+                    ret.font = this.font;
+                    ret.fontSize = this.fontSize;
+                    ret.color = this.color;
+
+                    return ret;
+                }
             }
 
-            public TextAttrib buttonTextAttrib;
-            public Sprite buttonSprite;
+            [System.Serializable]
+            public class SelectableInfo
+            { 
+                public UnityEngine.UI.Selectable.Transition transition = 
+                    UnityEngine.UI.Selectable.Transition.ColorTint;
+
+                public Sprite normalSprite;
+                public UnityEngine.UI.SpriteState spriteState;
+
+                public Color normalColor;
+                public UnityEngine.UI.ColorBlock colorStates = 
+                    UnityEngine.UI.ColorBlock.defaultColorBlock;
+
+                public void Apply(UnityEngine.UI.Selectable sel, UnityEngine.UI.Image img)
+                { 
+                    sel.transition = this.transition;
+
+                    sel.spriteState = this.spriteState;
+                    sel.colors = this.colorStates;
+
+                    UnityEngine.UI.Graphic graphic = sel.targetGraphic;
+                    if(graphic != null)
+                        graphic.color = this.normalColor;
+
+                    if(img != null)
+                    {
+                        img.type = UnityEngine.UI.Image.Type.Sliced;
+                        img.color = this.normalColor;
+                        img.sprite = this.normalSprite;
+                    }
+                }
+            }
+
+            [System.Serializable]
+            public class ScrollInfo : SelectableInfo
+            {
+                public float scrollbarDim = 40.0f;
+                public Sprite backplateSprite;
+            }
+
+            public SelectableInfo buttonStyle;
+            public TextAttrib buttonFont;
             public Vector2 minButtonSize;
             public PadRect buttonPadding;
-
-            public UnityEngine.UI.Button.Transition buttonTransition = UnityEngine.UI.Selectable.Transition.ColorTint;
-            public UnityEngine.UI.SpriteState buttonSpriteState = new UnityEngine.UI.SpriteState();
-            public Color buttonFontColor = Color.black;
-            public Font buttonFont;
-            public int buttonFontSize = 14;
 
             public TextAttrib headerTextAttrib;
             public Sprite headerSprite;
@@ -37,38 +88,32 @@ namespace PxPre
             public Sprite verticalSplitterSprite;
             public Vector2 minSplitterSize;
 
-            public Sprite horizontalScrollbarButtonSprite;
-            public Sprite horizontalScrollbarSprite;
-            public Sprite horizontalScrollbarThumbSprite;
-
-            public Sprite verticalScrollbarButtonSprite;
-            public Sprite verticalScrollbarSprite;
-            public Sprite verticalScrollbarThumbSprite;
+            public ScrollInfo verticalScroll;
+            public ScrollInfo horizScroll;
+            public bool scrollRectShowBack = false;
 
             public TextAttrib textTextAttrib;
 
             public Sprite inputSprite;
             public PadRect inputPadding;
-            public int inputFontSize = 14;
-            public Font inputFont;
-            public Color inputFontColor = Color.black;
+            public TextAttrib inputFont;
 
             internal UnityEngine.Events.UnityAction<UnityEngine.UI.Button> onCreateButton = null;
 
-            void ApplyButtonStyle(UnityEngine.UI.Button button, UnityEngine.UI.Text text, bool callback = false)
+            public void ApplyButtonStyle(UnityEngine.UI.Button button, UnityEngine.UI.Image img, UnityEngine.UI.Text text, bool callback = false)
             {
                 if(text != null)
                 { 
-                    text.fontSize   = this.buttonFontSize;
-                    text.font       = this.buttonFont;
-                    text.color      = this.buttonFontColor;
+                    this.buttonFont.Apply(text);
 
                     text.rectTransform.offsetMin += new Vector2(this.buttonPadding.left, this.buttonPadding.bot);
                     text.rectTransform.offsetMax += new Vector2(-this.buttonPadding.right, -this.buttonPadding.top);
                 }
 
-                button.spriteState = this.buttonSpriteState;
-                button.transition = this.buttonTransition;
+                this.buttonStyle.Apply(button, img);
+
+                if(callback == true)
+                    this.onCreateButton?.Invoke(button);
             }
 
             void ApplyButtonStyle<BtnTy>(EleGenButton<BtnTy> ele)
@@ -76,7 +121,7 @@ namespace PxPre
 
             { 
                 ele.border = this.buttonPadding;
-                this.ApplyButtonStyle(ele.Button, ele.text, true);
+                this.ApplyButtonStyle(ele.Button, ele.Plate, ele.text, true);
             }
 
             public EleGenButton<BtnTy> CreateButton<BtnTy>(EleBaseRect parent, string text, Vector2 size, string name = "")
@@ -85,11 +130,11 @@ namespace PxPre
                 EleGenButton<BtnTy> ele =
                     new EleGenButton<BtnTy>(
                         parent,
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         text,
-                        this.buttonSprite,
+                        this.buttonStyle.normalSprite,
                         size,
                         name);
 
@@ -104,11 +149,11 @@ namespace PxPre
                 EleButton ele = 
                     new EleButton(
                         parent, 
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         text,
-                        this.buttonSprite,
+                        this.buttonStyle.normalSprite,
                         size, 
                         name);
 
@@ -124,11 +169,11 @@ namespace PxPre
                 EleGenButton<BtnTy> ele =
                     new EleGenButton<BtnTy>(
                         parent,
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         text,
-                        this.buttonSprite);
+                        this.buttonStyle.normalSprite);
 
                 this.ApplyButtonStyle(ele);
                 return ele;
@@ -139,11 +184,11 @@ namespace PxPre
                 EleButton ele =
                     new EleButton(
                         parent,
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         text,
-                        this.buttonSprite);
+                        this.buttonStyle.normalSprite);
 
                 this.ApplyButtonStyle(ele);
                 return ele;
@@ -155,11 +200,11 @@ namespace PxPre
                 EleButton ele = 
                     new EleButton(
                         parent,
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         null,
-                        this.buttonSprite,
+                        this.buttonStyle.normalSprite,
                         size,
                         name);
 
@@ -172,11 +217,11 @@ namespace PxPre
                 EleButton ele =
                     new EleButton(
                         parent,
-                        this.buttonTextAttrib.font,
-                        this.buttonTextAttrib.pointSize,
-                        this.buttonTextAttrib.color,
+                        this.buttonFont.font,
+                        this.buttonFont.fontSize,
+                        this.buttonFont.color,
                         null,
-                        this.buttonSprite);
+                        this.buttonStyle.normalSprite);
 
                 this.ApplyButtonStyle(ele);
                 return ele;
@@ -214,7 +259,7 @@ namespace PxPre
                         text, 
                         this.headerTextAttrib.font, 
                         this.headerTextAttrib.color, 
-                        this.headerTextAttrib.pointSize, 
+                        this.headerTextAttrib.fontSize, 
                         this.headerSprite, 
                         this.headerPadding);
 
@@ -224,15 +269,15 @@ namespace PxPre
                 return ele;
             }
 
-            public EleBoxSizer HorizontalSizer(EleBaseRect parent)
+            public EleBoxSizer HorizontalSizer(EleBaseRect parent, string name = "")
             {
-                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Horiz);
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Horiz, name);
                 return bs;
             }
 
-            public EleBoxSizer VerticalSizer(EleBaseRect parent)
+            public EleBoxSizer VerticalSizer(EleBaseRect parent, string name = "")
             { 
-                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Vert);
+                EleBoxSizer bs = new EleBoxSizer(parent, Direction.Vert, name);
                 return bs;
             }
 
@@ -295,11 +340,31 @@ namespace PxPre
                         wrap, 
                         this.textTextAttrib.font, 
                         this.textTextAttrib.color, 
-                        this.textTextAttrib.pointSize, 
+                        this.textTextAttrib.fontSize, 
                         size, 
                         name);
 
                 return ele;
+            }
+
+            public void ApplyTextStyle(UnityEngine.UI.Text txt)
+            { 
+                txt.font = this.textTextAttrib.font;
+                txt.color = this.textTextAttrib.color;
+                txt.fontSize = this.textTextAttrib.fontSize;
+            }
+
+            public void ApplyTextStyle(UnityEngine.UI.Text txt, int fontSize)
+            { 
+                this.ApplyTextStyle(txt);
+                txt.fontSize = fontSize;
+            }
+
+            public void ApplyTextStyle(UnityEngine.UI.Text txt, int fontSize, string text)
+            { 
+                this.ApplyTextStyle(txt);
+                txt.fontSize = fontSize;
+                txt.text = text;
             }
 
             public EleText CreateText(EleBaseRect parent, string text, bool wrap)
@@ -311,7 +376,23 @@ namespace PxPre
                         wrap,
                         this.textTextAttrib.font,
                         this.textTextAttrib.color,
-                        this.textTextAttrib.pointSize);
+                        this.textTextAttrib.fontSize);
+
+                return ele;
+            }
+
+            public EleText CreateText(EleBaseRect parent, string text, int fontSize, bool wrap)
+            {
+                EleText ele =
+                    new EleText(
+                        parent,
+                        text,
+                        wrap,
+                        this.textTextAttrib.font,
+                        this.textTextAttrib.color,
+                        this.textTextAttrib.fontSize);
+
+                ele.text.fontSize = fontSize;
 
                 return ele;
             }
@@ -330,8 +411,26 @@ namespace PxPre
 
             public ElePropGrid CreatePropertyGrid(EleBaseRect parent)
             { 
-                ElePropGrid epg = new ElePropGrid(parent);
+                ElePropGrid epg = new ElePropGrid(parent, this.textTextAttrib);
                 return epg;
+            }
+
+            public ElePropGrid CreatePropertyGrid(EleBaseRect parent, int fontSize)
+            {
+                ElePropGrid epg = new ElePropGrid(parent, this.textTextAttrib, fontSize);
+                return epg;
+            }
+
+            public EleVertScrollRgn CreateVerticalScrollRect(EleBaseRect parent)
+            { 
+                EleVertScrollRgn evsr = 
+                    new EleVertScrollRgn(
+                        parent, 
+                        this.horizScroll, 
+                        this.verticalScroll,
+                        this.scrollRectShowBack);
+
+                return evsr;
             }
 
             public EleInput CreateInput(EleBaseRect parent, bool multiline = false)
@@ -340,9 +439,9 @@ namespace PxPre
                     new EleInput(
                         parent, 
                         "", 
-                        this.inputFont, 
-                        this.inputFontColor, 
-                        this.inputFontSize, 
+                        this.inputFont.font, 
+                        this.inputFont.color, 
+                        this.inputFont.fontSize, 
                         multiline, 
                         this.inputSprite,
                         this.inputPadding,

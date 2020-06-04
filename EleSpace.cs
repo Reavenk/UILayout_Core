@@ -33,7 +33,8 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache,
                 Dictionary<Ele, float> widths,
-                float width)
+                float width,
+                bool collapsable = true)
             {
                 return this.space;
             }
@@ -43,7 +44,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths, 
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
                 return size;
             }

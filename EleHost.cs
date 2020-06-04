@@ -10,22 +10,25 @@ namespace PxPre
         {
             RectTransform rt;
 
-            public EleHost(RectTransform host, string name = "")
+            public EleHost(RectTransform host, bool autolayout, string name = "")
                 : base(null, new Vector2(-1.0f, -1.0f), name)
             { 
                 this.rt = host;
+
+                if(autolayout == true)
+                    HostLayoutOnSizeChange.AttachHost(host.gameObject, this);
             }
 
             public override RectTransform RT => this.rt;
             
-            public void LayoutInRT()
+            public Vector2 LayoutInRT(bool collapsable = true)
             { 
                 Rect r = this.rt.rect;
                 Dictionary<Ele, float> widths = new Dictionary<Ele, float>();
                 Dictionary<Ele, Vector2> cached = new Dictionary<Ele, Vector2>();
 
                 this.GetMinWidth(widths);
-                this.GetMinSize(cached, widths, r.width);
+                this.GetMinSize(cached, widths, r.width, collapsable);
 
                 Vector2 ret = Vector2.zero;
                 if (this.sizer != null)
@@ -36,11 +39,26 @@ namespace PxPre
                             widths, 
                             Vector2.zero, 
                             Vector2.zero, 
-                            r.size);
+                            r.size,
+                            collapsable);
 
                     ret = 
                         Vector2.Max(ret, szRet);
                 }
+
+                return ret;
+            }
+
+            public Vector2 LayoutInRTSmartFit()
+            { 
+                const float buffer = 0.1f;
+                Rect r = this.rt.rect;
+
+                Vector2 rsz = LayoutInRT(false);
+                if(rsz.y > r.height + buffer)
+                    rsz = LayoutInRT(true);
+
+                return rsz;
             }
 
             public void PrepareTopLeftUse()

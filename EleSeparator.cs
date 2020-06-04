@@ -28,7 +28,7 @@ namespace PxPre
                 go.transform.SetParent(parent.GetContentRect());
 
                 this.img = go.AddComponent<UnityEngine.UI.Image>();
-                this.img.rectTransform.Short().Identity().AnchorTL().PivotTL().ZeroOffset();
+                this.img.rectTransform.RTQ().Identity().TopLeftAnchorsPivot().ZeroOffsets();
 
                 this.img.sprite = sprite;
                 this.img.type = UnityEngine.UI.Image.Type.Sliced;
@@ -41,7 +41,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths, 
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
                 return base.Layout(cached, widths, rectOffset, offset, size);
             }

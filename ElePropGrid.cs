@@ -26,9 +26,22 @@ namespace PxPre
 
             float cachedLabelWidth = 0.0f;
 
-            public ElePropGrid(EleBaseRect parent)
+            public Factory.TextAttrib labelText;
+
+            public float labelPushdown = 20.0f;
+
+            public ElePropGrid(EleBaseRect parent, Factory.TextAttrib labelText)
             { 
                 this.parent = parent;
+                this.labelText = labelText.Clone();
+            }
+
+            public ElePropGrid(EleBaseRect parent, Factory.TextAttrib labelText, int labelSize)
+            {
+                this.parent = parent;
+                this.labelText = labelText.Clone();
+
+                this.labelText.fontSize = labelSize;
             }
 
             public override void Add(Ele child, float proportion, LFlag flags)
@@ -51,6 +64,11 @@ namespace PxPre
                         parent.GetContentRect(), 
                         "Label_" + label, 
                         out pld.labelText).TopLeftAnchorsPivot();
+
+                    this.labelText.Apply(pld.labelText);
+                    pld.labelText.text = label;
+                    pld.labelText.horizontalOverflow = HorizontalWrapMode.Overflow;
+                    pld.labelText.verticalOverflow = VerticalWrapMode.Overflow;
                 }
 
                 layoutData.Add(pld);
@@ -69,6 +87,8 @@ namespace PxPre
                     TextGenerationSettings tgs = 
                         pld.labelText.GetGenerationSettings(
                             new Vector2(float.PositiveInfinity, float.PositiveInfinity));
+
+                    tgs.scaleFactor = 1.0f;
 
                     TextGenerator tg = pld.labelText.cachedTextGenerator;
 
@@ -95,14 +115,16 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache,
                 Dictionary<Ele, float> widths, 
-                float width)
+                float width,
+                bool collapsable = true)
             { 
                 float usableWidth = width;
                 usableWidth -= this.border.width;
 
-                float contentWidth = usableWidth - this.cachedLabelWidth;
                 if(this.cachedLabelWidth != 0.0f)
-                    this.cachedLabelWidth -= this.splitterWidth;
+                    this.cachedLabelWidth += this.splitterWidth;
+
+                float contentWidth = usableWidth - this.cachedLabelWidth - this.border.width;
 
                 float fY = this.border.top;
                 bool atLeastOne = false;
@@ -133,9 +155,8 @@ namespace PxPre
                     fY += maxY;
                 }
 
-                Vector2 ret = new Vector2(width, fY);
-                if(atLeastOne == true)
-                    ret = this.border.Pad(ret);
+                Vector2 ret = new Vector2(contentWidth, fY);
+                ret = this.border.Pad(ret);
 
                 return ret;
             }
@@ -145,13 +166,14 @@ namespace PxPre
                 Dictionary<Ele, float> widths, 
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             {
                 float usableWidth = size.x - this.border.width;
 
                 float fxConStart = this.cachedLabelWidth;
 
-                float contentWidth = usableWidth - this.cachedLabelWidth;
+                float contentWidth = usableWidth - this.cachedLabelWidth - this.border.width;
                 if (this.cachedLabelWidth != 0.0f)
                 {
                     this.cachedLabelWidth -= this.splitterWidth;
@@ -207,7 +229,7 @@ namespace PxPre
                         pld.labelText.rectTransform.anchoredPosition = 
                             new Vector2(
                                 rectOffset.x + this.border.left,
-                                -rectOffset.y - fY);
+                                -rectOffset.y - fY - this.labelPushdown);
                     }
 
                     float usableY = v2.y;

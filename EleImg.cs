@@ -27,10 +27,10 @@ namespace PxPre
             protected void _Create(EleBaseRect parent, Sprite sprite, Vector2 size, string name = "")
             { 
                 GameObject go = new GameObject("Image_" + name);
-                go.transform.SetParent(parent.GetContentRect());
+                go.transform.SetParent(parent.GetContentRect(), false);
 
                 this.img = go.AddComponent<UnityEngine.UI.Image>();
-                this.img.rectTransform.Short().Identity().AnchorTL().PivotTL().ZeroOffset();
+                this.img.rectTransform.RTQ().TopLeftAnchorsPivot().ZeroOffsets();
 
                 this.img.sprite = sprite;
                 this.img.type = UnityEngine.UI.Image.Type.Simple;
@@ -42,7 +42,7 @@ namespace PxPre
 
                 Sprite sprite = this.img.sprite;
                 if (sprite != null)
-                    f = Mathf.Max(sprite.rect.width, this.minSize.x);
+                    f = Mathf.Max(f, sprite.rect.width, this.minSize.x);
 
                 return f;
             }
@@ -50,9 +50,10 @@ namespace PxPre
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache,
                 Dictionary<Ele, float> widths,
-                float width)
+                float width,
+                bool collapsable = true)
             {
-                Vector2 mindef = base.ImplCalcMinSize(cache, widths, width);
+                Vector2 mindef = base.ImplCalcMinSize(cache, widths, width, collapsable);
                 Vector2 min = this.minSize;
 
                 Sprite sprite = this.img.sprite;
@@ -77,9 +78,10 @@ namespace PxPre
                 Dictionary<Ele, float> widths, 
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             { 
-                return base.Layout(cached, widths, rectOffset, offset, size);
+                return base.Layout(cached, widths, rectOffset, offset, size, collapsable);
             }
         }
     }

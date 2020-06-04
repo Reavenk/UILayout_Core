@@ -34,6 +34,11 @@ namespace PxPre
                 this.text.fontSize = fontSize;
                 this.text.alignment = TextAnchor.UpperLeft;
                 this.text.text = text;
+                this.text.verticalOverflow = VerticalWrapMode.Overflow;
+                this.text.horizontalOverflow = 
+                    wrap ? 
+                        HorizontalWrapMode.Wrap : 
+                        HorizontalWrapMode.Overflow;
 
                 SetRTTopLeft(this.text.rectTransform);
 
@@ -47,7 +52,7 @@ namespace PxPre
                     this.text.horizontalOverflow = HorizontalWrapMode.Overflow;
                 }
 
-                this.text.rectTransform.Short().Identity();
+                this.text.rectTransform.RTQ().Identity();
             }
 
             public override Vector2 Layout(
@@ -55,7 +60,8 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, 
                 Vector2 offset, 
-                Vector2 size)
+                Vector2 size,
+                bool collapsable = true)
             { 
                 Vector2 ret = base.Layout(cached, widths, rectOffset, offset, size);
                 return ret;
@@ -66,27 +72,52 @@ namespace PxPre
                 if (this.text.font == null)
                     return 0.0f;
 
-                TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(0.0f, Mathf.Infinity));
-                TextGenerator tg = this.text.cachedTextGeneratorForLayout;
+                float minWrapWidth = 50.0f;
+
+                TextGenerationSettings tgs = 
+                    (this.wrap == true) ?
+                        this.text.GetGenerationSettings(new Vector2(minWrapWidth, float.PositiveInfinity)) :
+                        this.text.GetGenerationSettings(new Vector2(float.PositiveInfinity, float.PositiveInfinity));
+
+                tgs.scaleFactor = 1.0f;
+
+                TextGenerator tg = this.text.cachedTextGenerator;
 
                 float ret = tg.GetPreferredWidth(this.text.text, tgs);
-                return Mathf.Ceil(ret) + 1.0f;
+
+                // There's an odd issue with wrapping not being honored.
+                if(this.wrap == false)
+                    return Mathf.Ceil(ret) + 1.0f;
+                else
+                    return Mathf.Min(minWrapWidth, ret);
             }
 
             protected override Vector2 ImplCalcMinSize(
                 Dictionary<Ele, Vector2> cache, 
                 Dictionary<Ele, float> widths, 
-                float width)
+                float width,
+                bool collapsable = true)
             { 
                 if(this.text.font == null)
                     return new Vector2(0.0f, 0.0f);
 
-                TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(width, Mathf.Infinity));
-                TextGenerator tg = this.text.cachedTextGeneratorForLayout;
+                if(this.wrap == false)
+                    width = float.PositiveInfinity;
 
-                float x = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
+                TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(width, Mathf.Infinity));
+                tgs.scaleFactor = 1.0f;
+
+                TextGenerator tg = this.text.cachedTextGenerator;
+
                 float y = Mathf.Ceil(tg.GetPreferredHeight(this.text.text, tgs)) + 1.0f;
 
+                if(this.wrap == true)
+                {
+                    float entireLineX = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
+                    return new Vector2(Mathf.Min(width, entireLineX), y);
+                }
+
+                float x = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
                 return new Vector2(x,y);
             }
 

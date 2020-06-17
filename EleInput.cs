@@ -11,8 +11,13 @@ namespace PxPre
             public UnityEngine.UI.InputField input = null;
             public UnityEngine.UI.Text text = null;
             public UnityEngine.UI.Text placeholder = null;
-            public PadRect border = new PadRect(10.0f, 10.0f, 10.0f, 10.0f);
             RectTransform rt;
+
+            // In hindsight, the border is probably useless at best, and harmful at worst,
+            // because it's for the inner text, but Unity isn't designed to have a text that's
+            // offset from the parent input in any way - it causes misalignments.
+            // TODO: Look into the removal of the border.
+            public PadRect border = new PadRect(10.0f, 10.0f, 10.0f, 10.0f);
 
             public override RectTransform RT => this.rt;
 
@@ -41,7 +46,7 @@ namespace PxPre
                     font, 
                     fontColor, 
                     pointSize, 
-                    multiline, 
+                    multiline,  
                     plate, 
                     new PadRect(padding), 
                     size, 
@@ -53,7 +58,7 @@ namespace PxPre
                 this.border = padding;
 
                 GameObject go = new GameObject("Input_" + name);
-                go.transform.SetParent(parent.GetContentRect());
+                go.transform.SetParent(parent.GetContentRect(), false);
                 go.transform.localRotation = Quaternion.identity;
                 go.transform.localScale = Vector3.one;
                 UnityEngine.UI.Image img = go.AddComponent<UnityEngine.UI.Image>();
@@ -62,14 +67,14 @@ namespace PxPre
                 img.type = UnityEngine.UI.Image.Type.Sliced;
 
                 GameObject goText = new GameObject("InputText_" + name);
-                goText.transform.SetParent(go.transform);
+                goText.transform.SetParent(go.transform, false);
                 goText.transform.localRotation = Quaternion.identity;
                 goText.transform.localPosition = Vector3.zero;
                 UnityEngine.UI.Text txt = goText.AddComponent<UnityEngine.UI.Text>();
                 txt.RTQ().TopLeftAnchorsPivot();
 
                 GameObject goPlaceholder = new GameObject("InputPlaceholder_" + name);
-                goPlaceholder.transform.SetParent(go.transform);
+                goPlaceholder.transform.SetParent(go.transform, false);
                 goPlaceholder.transform.localRotation = Quaternion.identity;
                 goPlaceholder.transform.localPosition = Vector3.zero;
                 UnityEngine.UI.Text txtPlace = goPlaceholder.AddComponent<UnityEngine.UI.Text>();
@@ -95,6 +100,12 @@ namespace PxPre
                     multiline ? 
                         UnityEngine.UI.InputField.LineType.MultiLineNewline : 
                         UnityEngine.UI.InputField.LineType.SingleLine;
+
+                if(multiline == false)
+                {
+                    this.text.alignment = TextAnchor.MiddleLeft;
+                    this.placeholder.alignment = TextAnchor.MiddleLeft;
+                }
             }
 
             public override bool CanHaveChildren()
@@ -140,9 +151,14 @@ namespace PxPre
                     ExpandParentFlush().
                     OffsetMin( this.border.left, this.border.bot).
                     OffsetMax(-this.border.right, -this.border.top);
+                    //OffsetMin(0.0f, 0.0f).
+                    //OffsetMax(0.0f, 0.0f);
+
 
                 this.placeholder.RTQ().
                     ExpandParentFlush().
+                    //OffsetMin(0.0f, 0.0f).
+                    //OffsetMax(0.0f, 0.0f);
                     OffsetMin(this.border.left, this.border.bot).
                     OffsetMax(-this.border.right, -this.border.top);
 

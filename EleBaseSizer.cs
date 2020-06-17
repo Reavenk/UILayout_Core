@@ -12,6 +12,41 @@ namespace PxPre
 
             public override bool Active { get { return this.active; } }
 
+            public static void DoRectProcessing(ref Vector2 pos, ref Vector2 size, Vector2 entireRegion, LFlag finFlag)
+            {
+                if ((finFlag & LFlag.GrowHoriz) != 0)
+                    size.x = entireRegion.x;
+                else if ((finFlag & LFlag.AlignHorizCenter) != 0)
+                    pos.x += (entireRegion.x - size.x) * 0.5f;
+                else if ((finFlag & LFlag.AlignRight) != 0)
+                    pos.x += entireRegion.x - size.x;
+
+                if ((finFlag & LFlag.GrowVert) != 0)
+                    size.y = entireRegion.y;
+                else if ((finFlag & LFlag.AlignVertCenter) != 0)
+                    pos.y += (entireRegion.y - size.y) * 0.5f;
+                else if ((finFlag & LFlag.AlignBot) != 0)
+                    pos.y += entireRegion.y - size.y;
+            }
+
+            public EleBaseSizer(){ }
+
+            public EleBaseSizer(EleBaseRect rect, string name = "")
+                : base(name)
+            { 
+                rect.SetSizer(this);
+            }
+
+            public EleBaseSizer(string name = "")
+                : base(name)
+            { }
+
+            public EleBaseSizer(EleBaseSizer parent, float proportion, LFlag flags, string name = "")
+                : base(name)
+            { 
+                parent.Add(this, proportion, flags);
+            }
+
             public abstract void Add(Ele child, float proportion, LFlag flags);
 
             public void AddHorizontalSpace(float width, float proportion = 0.0f, LFlag flags = 0)
@@ -33,24 +68,6 @@ namespace PxPre
             {
                 this.Add(new EleSpace(space), proportion, flags);
             }
-
-            public EleBaseSizer(EleBaseRect rect, string name = "")
-                : base(name)
-            { 
-                rect.SetSizer(this);
-            }
-
-            public EleBaseSizer(string name = "")
-                : base(name)
-            { }
-
-            public EleBaseSizer(EleBaseSizer parent, float proportion, LFlag flags, string name = "")
-                : base(name)
-            { 
-                parent.Add(this, proportion, flags);
-            }
-
-            public EleBaseSizer(){ }
         }
     }
 }

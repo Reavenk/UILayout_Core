@@ -9,71 +9,6 @@ namespace PxPre
         [CreateAssetMenuAttribute(fileName = "UILFactory", menuName = "UIL Factory")]
         public class Factory : ScriptableObject
         {
-            [System.Serializable]
-            public class TextAttrib
-            { 
-                public Font font;
-                public int fontSize = 14;
-                public Color color = Color.black;
-
-                public void Apply(UnityEngine.UI.Text text)
-                { 
-                    text.font = this.font;
-                    text.fontSize = this.fontSize;
-                    text.color = this.color;
-                }
-
-                public TextAttrib Clone()
-                { 
-                    TextAttrib ret = new TextAttrib();
-                    ret.font = this.font;
-                    ret.fontSize = this.fontSize;
-                    ret.color = this.color;
-
-                    return ret;
-                }
-            }
-
-            [System.Serializable]
-            public class SelectableInfo
-            { 
-                public UnityEngine.UI.Selectable.Transition transition = 
-                    UnityEngine.UI.Selectable.Transition.ColorTint;
-
-                public Sprite normalSprite;
-                public UnityEngine.UI.SpriteState spriteState;
-
-                public Color normalColor;
-                public UnityEngine.UI.ColorBlock colorStates = 
-                    UnityEngine.UI.ColorBlock.defaultColorBlock;
-
-                public void Apply(UnityEngine.UI.Selectable sel, UnityEngine.UI.Image img)
-                { 
-                    sel.transition = this.transition;
-
-                    sel.spriteState = this.spriteState;
-                    sel.colors = this.colorStates;
-
-                    UnityEngine.UI.Graphic graphic = sel.targetGraphic;
-                    if(graphic != null)
-                        graphic.color = this.normalColor;
-
-                    if(img != null)
-                    {
-                        img.type = UnityEngine.UI.Image.Type.Sliced;
-                        img.color = this.normalColor;
-                        img.sprite = this.normalSprite;
-                    }
-                }
-            }
-
-            [System.Serializable]
-            public class ScrollInfo : SelectableInfo
-            {
-                public float scrollbarDim = 40.0f;
-                public Sprite backplateSprite;
-            }
-
             public SelectableInfo buttonStyle;
             public TextAttrib buttonFont;
             public Vector2 minButtonSize;
@@ -91,6 +26,7 @@ namespace PxPre
             public ScrollInfo verticalScroll;
             public ScrollInfo horizScroll;
             public bool scrollRectShowBack = false;
+            public float scrollRectSensitivity = 50.0f;
 
             public TextAttrib textTextAttrib;
 
@@ -99,6 +35,23 @@ namespace PxPre
             public TextAttrib inputFont;
 
             internal UnityEngine.Events.UnityAction<UnityEngine.UI.Button> onCreateButton = null;
+            internal UnityEngine.Events.UnityAction<UnityEngine.UI.Toggle> onCreateCheckbox = null;
+            internal UnityEngine.Events.UnityAction<UnityEngine.UI.Text> onCreateText = null;
+            internal UnityEngine.Events.UnityAction<UnityEngine.UI.Slider> onCreateSlider = null;
+
+            public Vector2 minSliderSize;
+            public ScrollInfo horizSlider;
+            public ScrollInfo vertSlider;
+
+            public Sprite checkboxToggleSprite;
+            public UnityEngine.UI.Image.Type checkboxType;
+            public bool expandCheckboxGraphic;
+            public PadRect checkboxPadding;
+            public SelectableInfo checkboxStyle;
+            public float checkboxWidth = 50.0f;
+            public float checkboxMinHeight = 50.0f;
+            public float checkboxContentSeperationWidth = 10.0f;
+
 
             public void ApplyButtonStyle(UnityEngine.UI.Button button, UnityEngine.UI.Image img, UnityEngine.UI.Text text, bool callback = false)
             {
@@ -251,6 +204,34 @@ namespace PxPre
                 return ele;
             }
 
+            public EleSlider CreateHorizontalSlider(EleBaseRect parent, Vector2 size, string name = "")
+            { 
+                EleSlider ele = new EleSlider(parent, this.horizSlider, size, name);
+                ele.Slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+                onCreateSlider?.Invoke(ele.Slider);
+
+                return ele;
+            }
+
+            public EleSlider CreateHorizontalSlider(EleBaseRect parent, string name = "")
+            {
+                return this.CreateHorizontalSlider(parent, this.minSliderSize, name);
+            }
+
+            public EleGenSlider<ty> CreateHorizontalSlider<ty>(EleBaseRect parent, Vector2 size, string name = "") where ty : UnityEngine.UI.Slider
+            { 
+                EleGenSlider<ty>ele  = new EleGenSlider<ty>(parent, this.horizSlider, size, name);
+                ele.Slider.direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+                onCreateSlider?.Invoke(ele.Slider);
+
+                return ele;
+            }
+
+            public EleGenSlider<ty> CreateHorizontalSlider<ty>(EleBaseRect parent, string name = "") where ty : UnityEngine.UI.Slider
+            { 
+                return CreateHorizontalSlider<ty>(parent, this.minSliderSize, name);
+            }
+
             public EleHeader CreateHeader(EleBaseRect parent, string text)
             { 
                 EleHeader ele = 
@@ -291,6 +272,18 @@ namespace PxPre
             {
                 EleBoxSizer bs = new EleBoxSizer(parent, Direction.Vert, proportion, flags);
                 return bs;
+            }
+
+            public EleGridSizer GridSizer(EleBaseRect parent, int cols, string name = "")
+            { 
+                EleGridSizer gs = new EleGridSizer(parent, cols, name);
+                return gs;
+            }
+
+            public EleGridSizer GridSizer(EleBaseSizer parent, int cols, float proportion, LFlag flags)
+            { 
+                EleGridSizer gs = new EleGridSizer(parent, cols, proportion, flags);
+                return gs;
             }
 
             public EleSeparator CreateSeparator(EleBaseRect parent, Vector2 size)
@@ -428,7 +421,8 @@ namespace PxPre
                         parent, 
                         this.horizScroll, 
                         this.verticalScroll,
-                        this.scrollRectShowBack);
+                        this.scrollRectShowBack,
+                        this.scrollRectSensitivity);
 
                 return evsr;
             }
@@ -449,7 +443,64 @@ namespace PxPre
 
                 return inp;
             }
-            
+
+            public EleToggle CreateToggle(EleBaseRect parent, string label, Vector2 size, string name = "")
+            {
+                size.x = Mathf.Max(this.checkboxWidth, size.x);
+                size.y = Mathf.Max(this.checkboxMinHeight, size.y);
+
+                EleToggle etog =
+                    new EleToggle(
+                        parent,
+                        string.IsNullOrEmpty(label) ? null : this.textTextAttrib,
+                        label,
+                        this.checkboxStyle,
+                        this.checkboxWidth,
+                        this.checkboxToggleSprite,
+                        this.checkboxType,
+                        this.checkboxPadding,
+                        size,
+                        this.checkboxContentSeperationWidth);
+
+                this.onCreateCheckbox?.Invoke(etog.toggle);
+
+                return etog;
+            }
+
+            public EleToggle CreateToggle(EleBaseRect parent, string label, string name = "")
+            { 
+                return this.CreateToggle(parent, label, Vector2.zero, name);
+            }
+
+            public EleGenToggle<ty> CreateToggle<ty>(EleBaseRect parent, string label, Vector2 size, string name = "")
+                where ty : UnityEngine.UI.Toggle
+            {
+                size.x = Mathf.Max(this.checkboxWidth, size.x);
+                size.y = Mathf.Max(this.checkboxMinHeight, size.y);
+
+                EleGenToggle<ty> egt = 
+                    new EleGenToggle<ty>(
+                        parent, 
+                        string.IsNullOrEmpty(label) ? null : this.textTextAttrib,
+                        label,
+                        this.checkboxStyle,
+                        this.checkboxWidth,
+                        this.checkboxToggleSprite,
+                        this.checkboxType,
+                        size,
+                        this.checkboxContentSeperationWidth);
+
+                this.onCreateCheckbox?.Invoke(egt.toggle);
+
+                return egt;
+            }
+
+            public EleGenToggle<ty> CreateToggle<ty>(EleBaseRect parent, string label, string name = "")
+                where ty : UnityEngine.UI.Toggle
+            { 
+                return CreateToggle<ty>(parent, label, Vector2.zero, name);
+            }
+
             //public EleImg CreateHorizontalSpacer(Ele parent, int flags, Vector2 size)
             //{ 
             //}

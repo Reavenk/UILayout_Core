@@ -74,8 +74,7 @@ namespace PxPre
             { 
                 GameObject go = new GameObject("Button_" + name);
 
-                go.transform.SetParent(parent.GetContentRect());
-                go.RTQ().Identity();
+                go.transform.SetParent(parent.GetContentRect(), false);
 
                 this.plate = go.AddComponent<UnityEngine.UI.Image>();
                 this.button = go.AddComponent<BtnTy>();

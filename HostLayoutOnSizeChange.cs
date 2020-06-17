@@ -65,14 +65,14 @@ namespace PxPre
                 }
             }
 
-            public static void Attach(GameObject go, PxPre.UIL.Ele ele, bool destroyOnEscape = true)
+            public static void Attach(GameObject go, PxPre.UIL.Ele ele, bool destroyOnEscape = false)
             {
                 HostLayoutOnSizeChange uilosc = go.AddComponent<HostLayoutOnSizeChange>();
                 uilosc.ele = ele;
                 uilosc.destroyOnEscape = destroyOnEscape;
             }
 
-            public static void AttachHost(GameObject go, PxPre.UIL.EleHost host, bool destroyOnEscape = true)
+            public static void AttachHost(GameObject go, PxPre.UIL.EleHost host, bool destroyOnEscape = false)
             {
                 HostLayoutOnSizeChange uilosc = go.AddComponent<HostLayoutOnSizeChange>();
                 uilosc.host = host;

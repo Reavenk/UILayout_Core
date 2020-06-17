@@ -8,6 +8,12 @@ namespace PxPre
     {
         public class Dialog
         {
+            public struct OptionsButton
+            { 
+                public UnityEngine.UI.Button button;
+                public UnityEngine.UI.Text text;
+            }
+
             public Factory uifactory;
 
             /// <summary>
@@ -47,6 +53,9 @@ namespace PxPre
             /// </summary>
             public PxPre.UIL.EleBaseSizer bodySizer;
 
+            public List<OptionsButton> options = new List<OptionsButton>();
+            private PxPre.UIL.EleBoxSizer buttonRow = null;
+
             public System.Action onClose;
 
             public void DestroyDialog()
@@ -55,13 +64,18 @@ namespace PxPre
                 GameObject.Destroy(this.host.RT.gameObject);
             }
 
-            public void AddDialogTemplateButtons(float minDlgButtonWidth, params DlgButtonPair [] bpair)
+            public OptionsButton[] AddDialogTemplateButtons(float minDlgButtonWidth, params DlgButtonPair [] bpair)
             {
-                PxPre.UIL.EleBoxSizer btnRow =
-                    this.uifactory.HorizontalSizer(
-                        this.bodySizer,
-                        0.0f,
-                        PxPre.UIL.LFlag.GrowHoriz);
+                List<OptionsButton> rets = new List<OptionsButton>();
+
+                if(this.buttonRow == null)
+                {
+                    this.buttonRow = 
+                        this.uifactory.HorizontalSizer(
+                            this.bodySizer,
+                            0.0f,
+                            PxPre.UIL.LFlag.GrowHoriz);
+                }
 
                 for (int i = 0; i < bpair.Length; ++i)
                 {
@@ -85,13 +99,22 @@ namespace PxPre
                         {
                             bool close = true;
                             if (bp.action != null)
-                                close = bp.action();
+                                close = bp.action(eleBtn.Button);
 
                             if (close == true)
                                 this.DestroyDialog();
                         });
-                    btnRow.Add(eleBtn, prop, PxPre.UIL.LFlag.GrowHoriz);
+                    this.buttonRow.Add(eleBtn, prop, PxPre.UIL.LFlag.GrowHoriz);
+
+                    OptionsButton ob = new OptionsButton();
+                    ob.button = eleBtn.Button;
+                    ob.text = eleBtn.text;
+                    //
+                    this.options.Add(ob);
+                    rets.Add(ob);
                 }
+
+                return rets.ToArray();
             }
 
             public void AddDialogTemplateTitle(string title)
@@ -112,18 +135,18 @@ namespace PxPre
                 this.bodySizer.Add(sep, 0.0f, PxPre.UIL.LFlag.GrowHoriz);
             }
 
-            public void AddDialogTemplateButtons(params DlgButtonPair [] bpair)
+            public OptionsButton[]  AddDialogTemplateButtons(params DlgButtonPair [] bpair)
             {
-                this.AddDialogTemplateButtons(100.0f, bpair);
+                return this.AddDialogTemplateButtons(100.0f, bpair);
             }
         }
 
         public struct DlgButtonPair
         {
             public string label;
-            public System.Func<bool> action;
+            public System.Func<UnityEngine.UI.Button, bool> action;
 
-            public DlgButtonPair(string label, System.Func<bool> action)
+            public DlgButtonPair(string label, System.Func<UnityEngine.UI.Button, bool> action)
             {
                 this.label = label;
                 this.action = action;
@@ -141,6 +164,8 @@ namespace PxPre
             public float minDialogWidth = 100.0f;
             public Sprite titleSprite;
             public Sprite bodySprite;
+
+            public System.Action<Dialog> onCreateDialog;
 
             public DialogSpawner(Factory factory)
             { 
@@ -186,6 +211,8 @@ namespace PxPre
                 ret.bodySizer = bsBody;
                 ret.contentSizer = bsContent;
                 ret.rootParent = eleDlg;
+
+                this.onCreateDialog?.Invoke(ret);
 
                 return ret;
             }

@@ -39,6 +39,11 @@ namespace PxPre
             Entry head;
             Stack<Entry> stack = new Stack<Entry>();
 
+            public EleBaseSizer GetHeadSizer()
+            { 
+                return head.sizer;
+            }
+
             public UILStack(Factory factory, EleBaseRect rect, EleBaseSizer sizer)
             { 
                 this.uiFactory = factory;
@@ -121,6 +126,42 @@ namespace PxPre
                 this.head = newE;
 
                 return szr;
+            }
+
+            public EleGridSizer AddGridSizer(int cols, float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                EleGridSizer ret;
+
+                if(szr == null)
+                    ret = this.uiFactory.GridSizer(this.head.rect, cols);
+                else
+                    ret = this.uiFactory.GridSizer(szr, cols, proportion, flags);
+
+                return ret;
+            }
+
+            public EleGridSizer PushGridSizer(int cols, float proportion, LFlag flags)
+            { 
+                EleGridSizer szr = this.AddGridSizer(cols, proportion, flags);
+                if(szr == null)
+                    return null;
+
+                Entry newE = new Entry(this.head.rect, szr);
+                this.stack.Push(this.head);
+                this.head = newE;
+
+                return szr;
+            }
+
+            public EleGridSizer AddGridSizer(int cols)
+            { 
+                return this.AddGridSizer(cols, 0.0f, 0);
+            }
+
+            public EleGridSizer PushGridSizer(int cols)
+            { 
+                return this.PushGridSizer(cols, 0.0f, 0);
             }
 
             public EleText AddText(string text, int fontSize, bool wrap, float proportion, LFlag flags)
@@ -214,6 +255,28 @@ namespace PxPre
                 return ret;
             }
 
+            public EleGenSlider<ty> AddHorizontalSlider<ty>(float proportion, LFlag flags) where ty : UnityEngine.UI.Slider
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleGenSlider<ty> sldr = this.uiFactory.CreateHorizontalSlider<ty>(this.head.rect);
+                szr.Add(sldr, proportion, flags);
+                return sldr;
+            }
+
+            public EleSlider AddHorizontalSlider(float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleSlider sldr = this.uiFactory.CreateHorizontalSlider(this.head.rect);
+                szr.Add(sldr, proportion, flags);
+                return sldr;
+            }
+
             public EleVertScrollRgn AddVertScrollRect(float proportion, LFlag flags)
             {
                 EleBaseSizer szr = this.head.GetSizer();
@@ -237,6 +300,39 @@ namespace PxPre
                 return ret;
             }
 
+            public EleGenToggle<ty> AddToggle<ty>(string label, float proportion, LFlag flags)
+                where ty : UnityEngine.UI.Toggle
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleGenToggle<ty> tog = this.uiFactory.CreateToggle<ty>(this.head.rect, label);
+                szr.Add(tog, proportion, flags);
+                return tog;
+            }
+
+            public EleToggle AddToggle(string label, float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleToggle tog = this.uiFactory.CreateToggle(this.head.rect, label);
+                szr.Add(tog, proportion, flags);
+                return tog;
+            }
+
+            public EleSeparator AddHorizontalSeparator(float proportion = 0.0f)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleSeparator sep = this.uiFactory.CreateHorizontalSeparator(this.head.rect);
+                szr.Add(sep, proportion, LFlag.GrowHoriz);
+                return sep;
+            }
 
             public EleSpace AddSpace(float size, float proportion, LFlag flags)
             { 

@@ -28,24 +28,25 @@ namespace PxPre
 
             public override RectTransform RT => this.rt;
 
-            public EleVertScrollRgn(EleBaseRect parent, Factory.ScrollInfo horiz, Factory.ScrollInfo vert, bool showBack, Vector2 size, string name = "")
+            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, Vector2 size, float sensitivity, string name = "")
                 : base(parent, size, name)
             { 
-                this._Create(parent, horiz, vert, showBack, size, name);
+                this._Create(parent, horiz, vert, showBack, size, sensitivity, name);
             }
 
-            public EleVertScrollRgn(EleBaseRect parent, Factory.ScrollInfo horiz, Factory.ScrollInfo vert, bool showBack)
+            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity)
                 : base(parent)
             { 
-                this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), "");
+                this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), sensitivity, "");
             }
 
             protected void _Create(
                 EleBaseRect parent, 
-                Factory.ScrollInfo horiz,
-                Factory.ScrollInfo vert,
+                ScrollInfo horiz,
+                ScrollInfo vert,
                 bool showBack,
                 Vector2 size, 
+                float sensitivity,
                 string name = "")
             {
                 //      SCROLL ITEMS
@@ -145,6 +146,7 @@ namespace PxPre
                 scrollR.content = rtContent;
                 scrollR.horizontalScrollbar = sbHoriz;
                 scrollR.verticalScrollbar = sbVert;
+                scrollR.scrollSensitivity = sensitivity;
 
                 this.viewportMask = maskViewport;
                 //
@@ -163,7 +165,12 @@ namespace PxPre
                 Vector2 size,
                 bool collapsable = true)
             {
-                
+
+                if(collapsable == false)
+                    this.scrollRect.movementType = UnityEngine.UI.ScrollRect.MovementType.Clamped;
+                else
+                    this.scrollRect.movementType = UnityEngine.UI.ScrollRect.MovementType.Elastic;
+
                 this.rt.sizeDelta = size;
                 this.rt.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
 
@@ -212,6 +219,18 @@ namespace PxPre
                         new Vector2(0.0f, 0.0f),
                         innserSz);
 
+                if(innerLayoutSz.x <= innerWidth)
+                { 
+                    this.ScrollRect.horizontal = false;
+
+                    RectTransform con = this.scrollRect.content;
+                    con.anchoredPosition = new Vector2(0.0f, con.anchoredPosition.y);
+                }
+                else
+                {
+                    this.ScrollRect.horizontal = true;
+                }
+
                 this.scrollRect.content.sizeDelta =
                     innerLayoutSz;
             }
@@ -250,6 +269,17 @@ namespace PxPre
                 }
 
                 return min;
+            }
+
+            public IEnumerator SetVertScrollLater(float val)
+            { 
+                return SetVertScrollLater(this.scrollRect, val);
+            }
+
+            public static IEnumerator SetVertScrollLater(UnityEngine.UI.ScrollRect sr, float val)
+            { 
+                yield return new WaitForEndOfFrame();
+                sr.verticalNormalizedPosition = val;
             }
         }
     }

@@ -112,7 +112,7 @@ namespace PxPre
                 bool collapsable)
             { 
                 Vector2 ret = Vector2.zero;
-                ret.x -= this.border.width;
+                width -= this.border.width;
                 bool atleastOne = false;
                 foreach(PairedLayoutData pld in this.entries)
                 { 
@@ -166,7 +166,7 @@ namespace PxPre
                     totalMinY += v2.y;
 
                 }
-                maxX = Mathf.Max(maxX, size.x);
+                maxX = Mathf.Max(maxX, size.x - this.border.width);
                 // The free space to be distributed amongst the proportions
                 float freeSpace = Mathf.Max(0.0f, size.y - totalMinY);
 
@@ -209,22 +209,22 @@ namespace PxPre
                     else if((pldFlag & LFlag.AlignBot) != 0)
                         feleY += eleHeight - m.y;
 
-                    pld.ele.Layout(
-                        cached,
-                        widths,
-                        rectOffset + new Vector2(feleX, feleY), 
-                        offset + new Vector2(feleX, feleY), 
-                        new Vector2(feleSzX, feleSzY),
-                        collapsable);
+                    Vector2 losz = 
+                        pld.ele.Layout(
+                            cached,
+                            widths,
+                            rectOffset + new Vector2(feleX, feleY), 
+                            offset + new Vector2(feleX, feleY), 
+                            new Vector2(feleSzX, feleSzY),
+                            collapsable);
+
+                    maxX = Mathf.Max(maxX, losz.x);
 
                     fy += eleHeight;
                 }
 
-                if (atleastone == true)
-                {
-                    maxX += this.border.width;
-                    fy += this.border.height;
-                }
+                maxX += this.border.width;
+                fy += this.border.height;
 
                 return new Vector2(maxX, fy);
             }
@@ -273,8 +273,15 @@ namespace PxPre
 
                 float distrSpace = Mathf.Max(0.0f, usableWidth - xBuild);
 
+                bool atLeastOne = false;
+                float accumW = 0.0f;
                 foreach(PairedLayoutData pld in this.entries)
                 { 
+                    if(atLeastOne == false)
+                        atLeastOne = true;
+                    else
+                        accumW += this.padding;
+
                     float fx = pld.ele.GetMinWidth(widths);
                     if(totalProportions == 0.0f)
                         fx += distrSpace / (float)this.entries.Count;
@@ -283,12 +290,14 @@ namespace PxPre
 
                     Vector2 sz = pld.ele.GetMinSize(cache, widths, fx, collapsable);
                     yMax = Mathf.Max(yMax, sz.y);
+                    accumW += sz.x;
                 }
 
-                if(atleastone == true)
-                    yMax += this.border.height;
+                
+                yMax += this.border.height;
+                accumW += this.border.width;
 
-                return new Vector2(width, yMax);
+                return new Vector2(accumW, yMax);
             }
 
             Vector2 Layout_Horiz(

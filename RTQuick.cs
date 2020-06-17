@@ -97,6 +97,14 @@ public struct RTQuick
         return this;
     }
 
+    public RTQuick BotLeftAnchors()
+    {
+        this.rt.anchorMin = new Vector2(0.0f, 0.0f);
+        this.rt.anchorMax = new Vector2(0.0f, 0.0f);
+
+        return this;
+    }
+
     public RTQuick TopLeftPivot()
     { 
         this.rt.pivot = new Vector2(0.0f, 1.0f);
@@ -117,6 +125,13 @@ public struct RTQuick
     public RTQuick Pivot( Vector2 v)
     { 
         this.rt.pivot = v;
+
+        return this;
+    }
+
+    public RTQuick Pivot(float x, float y)
+    {
+        this.rt.pivot = new Vector2(x, y);
 
         return this;
     }
@@ -199,6 +214,46 @@ public struct RTQuick
     public RTQuick OffsetMax(float x, float y)
     { 
         this.rt.offsetMax = new Vector2(x, y);
+        return this;
+    }
+
+    public RTQuick AnchPos(float x, float y)
+    { 
+        this.rt.anchoredPosition = new Vector2(x, y);
+        return this;
+    }
+
+    public RTQuick AnchPos(Vector2 v)
+    { 
+        this.rt.anchoredPosition = v;
+        return this;
+    }
+
+    public RTQuick AnchMin(float x, float y)
+    { 
+        this.rt.anchorMin = new Vector2(x, y);
+
+        return this;
+    }
+
+    public RTQuick AnchMin(Vector2 v)
+    {
+        this.rt.anchorMin = v;
+
+        return this;
+    }
+
+    public RTQuick AnchMax(float x, float y)
+    {
+        this.rt.anchorMax = new Vector2(x, y);
+
+        return this;
+    }
+
+    public RTQuick AnchMax(Vector2 v)
+    {
+        this.rt.anchorMax = v;
+
         return this;
     }
 

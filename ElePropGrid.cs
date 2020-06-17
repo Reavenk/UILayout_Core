@@ -26,17 +26,17 @@ namespace PxPre
 
             float cachedLabelWidth = 0.0f;
 
-            public Factory.TextAttrib labelText;
+            public TextAttrib labelText;
 
             public float labelPushdown = 20.0f;
 
-            public ElePropGrid(EleBaseRect parent, Factory.TextAttrib labelText)
+            public ElePropGrid(EleBaseRect parent, TextAttrib labelText)
             { 
                 this.parent = parent;
                 this.labelText = labelText.Clone();
             }
 
-            public ElePropGrid(EleBaseRect parent, Factory.TextAttrib labelText, int labelSize)
+            public ElePropGrid(EleBaseRect parent, TextAttrib labelText, int labelSize)
             {
                 this.parent = parent;
                 this.labelText = labelText.Clone();

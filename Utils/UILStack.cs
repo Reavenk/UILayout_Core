@@ -44,10 +44,20 @@ namespace PxPre
                 return head.sizer;
             }
 
+            public RectTransform GetHeadRectTransform()
+            { 
+                return head.rect.RT;
+            }
+
             public UILStack(Factory factory, EleBaseRect rect, EleBaseSizer sizer)
             { 
                 this.uiFactory = factory;
                 this.head = new Entry(rect, sizer);
+            }
+
+            public UILStack GetSnapshot()
+            { 
+                return new UILStack(this.uiFactory, this.head.rect, this.head.sizer);
             }
 
             public UILStack(Factory factory, EleBaseRect rect)
@@ -164,6 +174,15 @@ namespace PxPre
                 return this.PushGridSizer(cols, 0.0f, 0);
             }
 
+            public EleText CreateText(string text, int fontSize, bool wrap)
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleText ret = this.uiFactory.CreateText(this.head.rect, text, fontSize, wrap);
+                return ret;
+            }
+
             public EleText AddText(string text, int fontSize, bool wrap, float proportion, LFlag flags)
             {
                 EleBaseSizer szr = this.head.GetSizer();
@@ -172,6 +191,15 @@ namespace PxPre
 
                 EleText ret = this.uiFactory.CreateText(this.head.rect, text, fontSize, wrap);
                 szr.Add(ret, proportion, flags);
+                return ret;
+            }
+
+            public EleText CreateText(string text, bool wrap)
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleText ret = this.uiFactory.CreateText(this.head.rect, text, wrap);
                 return ret;
             }
 
@@ -220,6 +248,15 @@ namespace PxPre
                 return btn;
             }
 
+            public EleButton CreateButton(string text)
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleButton btn = this.uiFactory.CreateButton(this.head.rect, text);
+                return btn;
+            }
+
             public EleButton PushButton(string text, float proportion, LFlag flags)
             {
                 EleButton ret = this.AddButton(text, proportion, flags);
@@ -230,6 +267,15 @@ namespace PxPre
 
                 this.head = new Entry(ret);
                 return ret;
+            }
+
+            public EleGenButton<ty> CreateButton<ty>(string text) where ty : UnityEngine.UI.Button
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleGenButton<ty> btn = this.uiFactory.CreateButton<ty>(this.head.rect, text);
+                return btn;
             }
 
             public EleGenButton<ty> AddButton<ty>(string text, float proportion, LFlag flags) where ty : UnityEngine.UI.Button
@@ -255,6 +301,15 @@ namespace PxPre
                 return ret;
             }
 
+            public EleGenSlider<ty> CreateHorizontalSlider<ty>() where ty : UnityEngine.UI.Slider
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleGenSlider<ty> sldr = this.uiFactory.CreateHorizontalSlider<ty>(this.head.rect);
+                return sldr;
+            }
+
             public EleGenSlider<ty> AddHorizontalSlider<ty>(float proportion, LFlag flags) where ty : UnityEngine.UI.Slider
             {
                 EleBaseSizer szr = this.head.GetSizer();
@@ -263,6 +318,15 @@ namespace PxPre
 
                 EleGenSlider<ty> sldr = this.uiFactory.CreateHorizontalSlider<ty>(this.head.rect);
                 szr.Add(sldr, proportion, flags);
+                return sldr;
+            }
+
+            public EleSlider CreateHorizontalSlider()
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleSlider sldr = this.uiFactory.CreateHorizontalSlider(this.head.rect);
                 return sldr;
             }
 
@@ -277,20 +341,20 @@ namespace PxPre
                 return sldr;
             }
 
-            public EleVertScrollRgn AddVertScrollRect(float proportion, LFlag flags)
+            public EleVertScrollRgn AddVertScrollRect(float proportion, LFlag flags, string name)
             {
                 EleBaseSizer szr = this.head.GetSizer();
                 if (szr == null)
                     return null;
 
-                EleVertScrollRgn srgn = this.uiFactory.CreateVerticalScrollRect(this.head.rect);
+                EleVertScrollRgn srgn = this.uiFactory.CreateVerticalScrollRect(this.head.rect, name);
                 szr.Add(srgn, proportion, flags);
                 return srgn;
             }
 
-            public EleVertScrollRgn PushVertScrollRect(float proportion, LFlag flags)
+            public EleVertScrollRgn PushVertScrollRect(float proportion, LFlag flags, string name = "")
             {
-                EleVertScrollRgn ret = this.AddVertScrollRect(proportion, flags);
+                EleVertScrollRgn ret = this.AddVertScrollRect(proportion, flags, name);
                 if (ret == null)
                     return null;
 
@@ -298,6 +362,16 @@ namespace PxPre
 
                 this.head = new Entry(ret);
                 return ret;
+            }
+
+            public EleGenToggle<ty> CreateToggle<ty>(string label)
+                where ty : UnityEngine.UI.Toggle
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleGenToggle<ty> tog = this.uiFactory.CreateToggle<ty>(this.head.rect, label);
+                return tog;
             }
 
             public EleGenToggle<ty> AddToggle<ty>(string label, float proportion, LFlag flags)
@@ -312,6 +386,15 @@ namespace PxPre
                 return tog;
             }
 
+            public EleToggle CreateToggle(string label)
+            {
+                if(this.head.rect == null)
+                    return null;
+
+                EleToggle tog = this.uiFactory.CreateToggle(this.head.rect, label);
+                return tog;
+            }
+
             public EleToggle AddToggle(string label, float proportion, LFlag flags)
             {
                 EleBaseSizer szr = this.head.GetSizer();
@@ -321,6 +404,36 @@ namespace PxPre
                 EleToggle tog = this.uiFactory.CreateToggle(this.head.rect, label);
                 szr.Add(tog, proportion, flags);
                 return tog;
+            }
+
+            public ElePropGrid PushPropGrid(float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                ElePropGrid epg = this.uiFactory.CreatePropertyGrid(this.head.rect);
+                szr.Add(epg, proportion, flags);
+
+                this.stack.Push(this.head);
+                this.head = new Entry(this.head.rect, epg);
+
+                return epg;
+            }
+
+            public ElePropGrid PushPropGrid(int fontSize, float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                ElePropGrid epg = this.uiFactory.CreatePropertyGrid(this.head.rect, fontSize);
+                szr.Add(epg, proportion, flags);
+
+                this.stack.Push(this.head);
+                this.head = new Entry(this.head.rect, epg);
+
+                return epg;
             }
 
             public EleSeparator AddHorizontalSeparator(float proportion = 0.0f)

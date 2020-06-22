@@ -179,6 +179,14 @@ public struct RTQuick
         return this;
     }
 
+    public RTQuick ExpandAnchors()
+    { 
+        this.rt.anchorMin = Vector2.zero;
+        this.rt.anchorMax = Vector2.one;
+
+        return this;
+    }
+
     public RTQuick SizeDelta(float x, float y)
     { 
         this.rt.sizeDelta = new Vector2(x, y);

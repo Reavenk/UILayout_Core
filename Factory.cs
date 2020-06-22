@@ -414,7 +414,7 @@ namespace PxPre
                 return epg;
             }
 
-            public EleVertScrollRgn CreateVerticalScrollRect(EleBaseRect parent)
+            public EleVertScrollRgn CreateVerticalScrollRect(EleBaseRect parent, string name = "")
             { 
                 EleVertScrollRgn evsr = 
                     new EleVertScrollRgn(
@@ -422,7 +422,8 @@ namespace PxPre
                         this.horizScroll, 
                         this.verticalScroll,
                         this.scrollRectShowBack,
-                        this.scrollRectSensitivity);
+                        this.scrollRectSensitivity, 
+                        name);
 
                 return evsr;
             }
@@ -487,6 +488,7 @@ namespace PxPre
                         this.checkboxWidth,
                         this.checkboxToggleSprite,
                         this.checkboxType,
+                        this.checkboxPadding,
                         size,
                         this.checkboxContentSeperationWidth);
 

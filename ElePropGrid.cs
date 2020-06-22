@@ -19,6 +19,8 @@ namespace PxPre
             }
 
             EleBaseRect parent;
+            public EleBaseRect Parent {get{return this.parent; } }
+
             List<PairedLayoutData> layoutData = new List<PairedLayoutData>();
             public PadRect border = new PadRect(5.0f, 5.0f, 5.0f, 5.0f);
             public float padding = 5.0f;
@@ -29,6 +31,7 @@ namespace PxPre
             public TextAttrib labelText;
 
             public float labelPushdown = 20.0f;
+
 
             public ElePropGrid(EleBaseRect parent, TextAttrib labelText)
             { 
@@ -46,7 +49,7 @@ namespace PxPre
 
             public override void Add(Ele child, float proportion, LFlag flags)
             { 
-                this.Add(child, proportion, flags);
+                this.Add(child, proportion, flags, "");
             }
 
             public void Add(Ele child, float proportion, LFlag flags, string label)
@@ -173,7 +176,7 @@ namespace PxPre
 
                 float fxConStart = this.cachedLabelWidth;
 
-                float contentWidth = usableWidth - this.cachedLabelWidth - this.border.width;
+                float contentWidth = usableWidth - this.cachedLabelWidth - this.splitterWidth;
                 if (this.cachedLabelWidth != 0.0f)
                 {
                     this.cachedLabelWidth -= this.splitterWidth;

@@ -35,6 +35,22 @@ namespace PxPre
                 this.bot    = all;
             }
 
+            public void Set(float all)
+            {
+                this.left   = all;
+                this.top    = all;
+                this.right  = all;
+                this.bot    = all;
+            }
+
+            public void Set(float left, float top, float right, float bot)
+            {
+                this.left   = left;
+                this.top    = top;
+                this.right  = right;
+                this.bot    = bot;
+            }
+
             public Vector2 Pad(Vector2 v)
             { 
                 return v + 

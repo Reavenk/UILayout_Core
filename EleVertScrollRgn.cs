@@ -34,10 +34,10 @@ namespace PxPre
                 this._Create(parent, horiz, vert, showBack, size, sensitivity, name);
             }
 
-            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity)
+            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity, string name = "")
                 : base(parent)
             { 
-                this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), sensitivity, "");
+                this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), sensitivity, name);
             }
 
             protected void _Create(

@@ -11,7 +11,13 @@ namespace PxPre
             public UnityEngine.UI.InputField input = null;
             public UnityEngine.UI.Text text = null;
             public UnityEngine.UI.Text placeholder = null;
+
+            // The root plate
             RectTransform rt;
+
+            // The inner plate that has the Input. It needs to be separate from the outer plate
+            // with the image and the inner text elements.
+            public RectTransform rtInput = null;
 
             // In hindsight, the border is probably useless at best, and harmful at worst,
             // because it's for the inner text, but Unity isn't designed to have a text that's
@@ -57,7 +63,7 @@ namespace PxPre
             { 
                 this.border = padding;
 
-                GameObject go = new GameObject("Input_" + name);
+                GameObject go = new GameObject("InputPlate_" + name);
                 go.transform.SetParent(parent.GetContentRect(), false);
                 go.transform.localRotation = Quaternion.identity;
                 go.transform.localScale = Vector3.one;
@@ -66,21 +72,31 @@ namespace PxPre
                 img.sprite = plate;
                 img.type = UnityEngine.UI.Image.Type.Sliced;
 
+                GameObject goInput = new GameObject("Input_" + name);
+                goInput.transform.SetParent(go.transform, false);
+                this.rtInput = goInput.AddComponent<RectTransform>();
+                this.rtInput.pivot = new Vector2(0.0f, 1.0f);
+                this.rtInput.anchorMin = Vector2.zero;
+                this.rtInput.anchorMax = Vector2.one;
+                this.rtInput.offsetMin = new Vector2(padding.left, padding.bot);
+                this.rtInput.offsetMax = new Vector2(-padding.right, -padding.top);
+
+
                 GameObject goText = new GameObject("InputText_" + name);
-                goText.transform.SetParent(go.transform, false);
+                goText.transform.SetParent(this.rtInput, false);
                 goText.transform.localRotation = Quaternion.identity;
                 goText.transform.localPosition = Vector3.zero;
                 UnityEngine.UI.Text txt = goText.AddComponent<UnityEngine.UI.Text>();
-                txt.RTQ().TopLeftAnchorsPivot();
+                txt.RTQ().TopLeftAnchorsPivot().ExpandParentFlush();
 
                 GameObject goPlaceholder = new GameObject("InputPlaceholder_" + name);
-                goPlaceholder.transform.SetParent(go.transform, false);
+                goPlaceholder.transform.SetParent(this.rtInput, false);
                 goPlaceholder.transform.localRotation = Quaternion.identity;
                 goPlaceholder.transform.localPosition = Vector3.zero;
                 UnityEngine.UI.Text txtPlace = goPlaceholder.AddComponent<UnityEngine.UI.Text>();
-                txtPlace.RTQ().TopLeftAnchorsPivot();
+                txtPlace.RTQ().TopLeftAnchorsPivot().ExpandParentFlush();
 
-                this.input = go.AddComponent<UnityEngine.UI.InputField>();
+                this.input = goInput.AddComponent<UnityEngine.UI.InputField>();
                 this.input.textComponent = txt;
                 this.input.targetGraphic = img;
                 this.input.placeholder = txtPlace;
@@ -147,19 +163,9 @@ namespace PxPre
                 //return base.Layout(cached, widths, rectOffset, offset, size);
                 base.Layout(cached, widths, rectOffset, offset, size);
 
-                this.text.RTQ().
-                    ExpandParentFlush().
+                // Set the offsets again in case the border was changed since creation.
+                this.rtInput.RTQ().
                     OffsetMin( this.border.left, this.border.bot).
-                    OffsetMax(-this.border.right, -this.border.top);
-                    //OffsetMin(0.0f, 0.0f).
-                    //OffsetMax(0.0f, 0.0f);
-
-
-                this.placeholder.RTQ().
-                    ExpandParentFlush().
-                    //OffsetMin(0.0f, 0.0f).
-                    //OffsetMax(0.0f, 0.0f);
-                    OffsetMin(this.border.left, this.border.bot).
                     OffsetMax(-this.border.right, -this.border.top);
 
                 return size;

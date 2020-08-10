@@ -79,11 +79,11 @@ namespace PxPre
                         this.text.GetGenerationSettings(new Vector2(minWrapWidth, float.PositiveInfinity)) :
                         this.text.GetGenerationSettings(new Vector2(float.PositiveInfinity, float.PositiveInfinity));
 
-                tgs.scaleFactor = 1.0f;
+                //tgs.scaleFactor = 1.0f;
 
                 TextGenerator tg = this.text.cachedTextGenerator;
 
-                float ret = tg.GetPreferredWidth(this.text.text, tgs);
+                float ret = tg.GetPreferredWidth(this.text.text, tgs) / this.text.rectTransform.lossyScale.x;
 
                 // There's an odd issue with wrapping not being honored.
                 if(this.wrap == false)
@@ -105,19 +105,23 @@ namespace PxPre
                     width = float.PositiveInfinity;
 
                 TextGenerationSettings tgs = this.text.GetGenerationSettings(new Vector2(width, Mathf.Infinity));
-                tgs.scaleFactor = 1.0f;
 
+                // This is freaking bizzare. We need to account for scale, but we can't just do ...
+                //tgs.scaleFactor = 1.0f;
+                // ... because that can screw up the calculation of how many lines are in the 
+                // output when GetPreferredHeight is called.
+                // 
                 TextGenerator tg = this.text.cachedTextGenerator;
-
-                float y = Mathf.Ceil(tg.GetPreferredHeight(this.text.text, tgs)) + 1.0f;
+                // So we end up accounting for it by looking at the world scale.
+                float y = Mathf.Ceil(tg.GetPreferredHeight(this.text.text, tgs)) / this.text.rectTransform.lossyScale.y + 1.0f;
 
                 if(this.wrap == true)
                 {
-                    float entireLineX = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
+                    float entireLineX = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) / this.text.rectTransform.lossyScale.x + 1.0f;
                     return new Vector2(Mathf.Min(width, entireLineX), y);
                 }
 
-                float x = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) + 1.0f;
+                float x = Mathf.Ceil(tg.GetPreferredWidth(this.text.text, tgs)) / this.text.rectTransform.lossyScale.x + 1.0f;
                 return new Vector2(x,y);
             }
 

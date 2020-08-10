@@ -50,4 +50,10 @@ public static class UILChain
         txt.text.fontSize = fontSize;
         return txt;
     }
+
+    public static PxPre.UIL.Ele Chn_MinSize(this PxPre.UIL.Ele e, Vector2 newMinSz)
+    { 
+        e.minSize = newMinSz;
+        return e;
+    }
 }

@@ -53,6 +53,29 @@ namespace PxPre
                     new PairedLayoutData(ele, proportion, flags));
             }
 
+            public override bool Remove(Ele child)
+            {
+                for(int i = 0; i < this.entries.Count; ++i)
+                { 
+                    if(this.entries[i].ele == child)
+                    { 
+                        this.entries.RemoveAt(i);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public override bool HasEntry(Ele child)
+            { 
+                for(int i = 0; i < this.entries.Count; ++i)
+                { 
+                    if(this.entries[i].ele == child)
+                        return true;
+                }
+                return false;
+            }
+
             protected override float ImplCalcMinSizeWidth(
                 Dictionary<Ele, float> cached)
             { 
@@ -224,7 +247,7 @@ namespace PxPre
                 }
 
                 maxX += this.border.width;
-                fy += this.border.height;
+                fy += this.border.bot;
 
                 return new Vector2(maxX, fy);
             }

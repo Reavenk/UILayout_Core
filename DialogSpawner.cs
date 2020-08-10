@@ -117,16 +117,36 @@ namespace PxPre
                 return rets.ToArray();
             }
 
-            public void AddDialogTemplateTitle(string title)
+            public void AddDialogTemplateTitle(string title, Sprite icon = null)
             {
+
+                EleBaseSizer sizerTitle = this.titleSizer;
                 PxPre.UIL.EleText eleTitleTxt = 
                     uifactory.CreateText(
                         this.rootTitle, 
                         title, 
                         false);
 
+                if(icon != null)
+                {
+                    PxPre.UIL.EleBoxSizer ebs = uifactory.HorizontalSizer(this.titleSizer, 1.0f, LFlag.Grow);
+                    sizerTitle = ebs;
+
+                    PxPre.UIL.EleImg imgIcon = 
+                        uifactory.CreateImage(
+                            this.rootTitle,
+                            icon,
+                            "");
+
+                    imgIcon.minSize = icon.rect.size;
+
+                    ebs.Add(new PxPre.UIL.EleSpace(10.0f), 0.0f, 0);
+                    ebs.Add(imgIcon, 0.0f, LFlag.AlignVertCenter);
+                    ebs.Add(new PxPre.UIL.EleSpace(10.0f), 0.0f, 0);
+                }
+
                 eleTitleTxt.text.fontSize = 25;
-                this.titleSizer.Add(eleTitleTxt, 1.0f, PxPre.UIL.LFlag.AlignCenter);
+                sizerTitle.Add(eleTitleTxt, 1.0f, PxPre.UIL.LFlag.AlignCenter);
             }
 
             public void AddDialogTemplateSeparator()
@@ -138,6 +158,11 @@ namespace PxPre
             public OptionsButton[]  AddDialogTemplateButtons(params DlgButtonPair [] bpair)
             {
                 return this.AddDialogTemplateButtons(100.0f, bpair);
+            }
+
+            public PxPre.UIL.UILStack CreateContentStack(PxPre.UIL.Factory f)
+            { 
+                return new PxPre.UIL.UILStack(f, this.rootParent, this.contentSizer);
             }
         }
 
@@ -172,11 +197,11 @@ namespace PxPre
                 this.factory = factory;
             }
 
-            public Dialog CreateDialogTemplate(Vector2 bodySize, PxPre.UIL.LFlag flags, float proportion)
+            public Dialog CreateDialogTemplate(Canvas canvas, Vector2 bodySize, PxPre.UIL.LFlag flags, float proportion)
             {
                 // The backplate
                 UnityEngine.UI.Image bplate;
-                RTQuick rtqBP = RTQuick.CreateGameObjectWithImage(CanvasSingleton.canvas.transform, "Backplate", out bplate);
+                RTQuick rtqBP = RTQuick.CreateGameObjectWithImage(canvas.transform, "Backplate", out bplate);
                 // The UILayout host for the backplate
                 PxPre.UIL.EleHost host = new PxPre.UIL.EleHost(bplate.rectTransform, true);
                 bplate.Color(0.0f, 0.0f, 0.0f, 0.8f).RTQ().ExpandParentFlush().CenterPivot();
@@ -217,7 +242,7 @@ namespace PxPre
                 return ret;
             }
 
-            public Dialog CreateDialogTemplate(bool constrained = true, bool fullScreen = false)
+            public Dialog CreateDialogTemplate(Canvas canvas, bool constrained = true, bool fullScreen = false)
             {
                 Vector2 bodySize = new Vector2(500.0f, 400.0f);
                 if (constrained == false)
@@ -234,15 +259,16 @@ namespace PxPre
                 if (constrained == false)
                     dlgFlag |= PxPre.UIL.LFlag.Grow;
 
-                return CreateDialogTemplate(bodySize, dlgFlag, dlgProp);
+                return CreateDialogTemplate(canvas, bodySize, dlgFlag, dlgProp);
             }
 
             public Dialog CreateDialogTemplate(
+                Canvas canvas,
                 string title,
                 string message,
                 params DlgButtonPair[] bpair)
             {
-                Dialog dlg = this.CreateDialogTemplate();
+                Dialog dlg = this.CreateDialogTemplate(canvas);
 
                 // Insert title text
                 dlg.AddDialogTemplateTitle(title);

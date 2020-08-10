@@ -210,7 +210,30 @@ namespace PxPre
                     //        height);
                 }
 
-                return base.Layout(cached, widths, rectOffset, offset, size);
+                //return base.Layout(cached, widths, rectOffset, offset, size);
+                RectTransform rt = this.RT;
+
+                rt.anchoredPosition = new Vector2(rectOffset.x, -rectOffset.y);
+
+                Vector2 ret = size;
+                if(this.sizer != null)
+                { 
+                    offset.x += this.border.left;
+                    offset.y += this.border.top;
+
+                    ret.x -= this.border.width;
+                    ret.y -= this.border.height;
+
+                    ret = this.sizer.Layout(cached, widths, new Vector2(this.border.left, this.border.top), offset, ret, collapsable);
+                    ret.x += this.border.width;
+                    ret.y += this.border.height;
+
+                    ret = Vector2.Max(ret, size);
+                }
+                rt.sizeDelta = ret;
+
+
+                return ret;
             }
         }
     }

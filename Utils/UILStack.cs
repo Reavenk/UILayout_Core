@@ -341,13 +341,44 @@ namespace PxPre
                 return sldr;
             }
 
+            public EleGenVertScrollRgn<RTy, STy> AddVertScrollRect<RTy, STy>(float proportion, LFlag flags, string name = "")
+                where RTy : UnityEngine.UI.ScrollRect
+                where STy : UnityEngine.UI.Scrollbar
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+                
+                EleGenVertScrollRgn<RTy, STy> srgn = this.uiFactory.CreateGenVerticalScrollRect<RTy, STy>(this.head.rect, name);
+                szr.Add(srgn, proportion, flags);
+                return srgn;
+            }
+            
+            public EleGenVertScrollRgn<RTy, STy> PushVertScrollRect<RTy, STy>(float proportion, LFlag flags, string name = "")
+                where RTy : UnityEngine.UI.ScrollRect
+                where STy : UnityEngine.UI.Scrollbar
+            {
+                EleGenVertScrollRgn<RTy, STy> ret = this.AddVertScrollRect<RTy, STy>(proportion, flags, name);
+                if (ret == null)
+                    return null;
+            
+                this.stack.Push(this.head);
+            
+                this.head = new Entry(ret);
+                return ret;
+            }
+
+
+
             public EleVertScrollRgn AddVertScrollRect(float proportion, LFlag flags, string name)
             {
                 EleBaseSizer szr = this.head.GetSizer();
                 if (szr == null)
                     return null;
 
-                EleVertScrollRgn srgn = this.uiFactory.CreateVerticalScrollRect(this.head.rect, name);
+                EleVertScrollRgn srgn = 
+                    this.uiFactory.CreateVerticalScrollRect(this.head.rect, name);
+
                 szr.Add(srgn, proportion, flags);
                 return srgn;
             }

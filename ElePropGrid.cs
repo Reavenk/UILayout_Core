@@ -77,6 +77,35 @@ namespace PxPre
                 layoutData.Add(pld);
             }
 
+            public override bool Remove(Ele child)
+            {
+                for(int i = 0; i < this.layoutData.Count; ++i)
+                { 
+                    if(this.layoutData[i].ele == child)
+                    { 
+                        UnityEngine.UI.Text labelToDel = this.layoutData[i].labelText;
+
+                        this.layoutData.RemoveAt(i);
+
+                        if(labelToDel != null)
+                            GameObject.Destroy(labelToDel.gameObject);
+
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            public override bool HasEntry(Ele child)
+            { 
+                for(int i = 0; i < this.layoutData.Count; ++i)
+                { 
+                    if(this.layoutData[i].ele == child)
+                        return true;
+                }
+                return false;
+            }
+
             protected override float ImplCalcMinSizeWidth(Dictionary<Ele, float> cache)
             {
                 float maxLabels = 0.0f;

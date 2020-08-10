@@ -428,6 +428,22 @@ namespace PxPre
                 return evsr;
             }
 
+            public EleGenVertScrollRgn<RectTy, ScrollTy> CreateGenVerticalScrollRect<RectTy, ScrollTy>(EleBaseRect parent, string name = "")
+                where RectTy : UnityEngine.UI.ScrollRect
+                where ScrollTy : UnityEngine.UI.Scrollbar
+            { 
+                EleGenVertScrollRgn<RectTy, ScrollTy> evsr = 
+                    new EleGenVertScrollRgn<RectTy, ScrollTy>(
+                        parent, 
+                        this.horizScroll, 
+                        this.verticalScroll,
+                        this.scrollRectShowBack,
+                        this.scrollRectSensitivity, 
+                        name);
+
+                return evsr;
+            }
+
             public EleInput CreateInput(EleBaseRect parent, bool multiline = false)
             { 
                 EleInput inp = 

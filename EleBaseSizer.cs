@@ -49,6 +49,10 @@ namespace PxPre
 
             public abstract void Add(Ele child, float proportion, LFlag flags);
 
+            public abstract bool Remove(Ele child);
+
+            public abstract bool HasEntry(Ele child);
+
             public void AddHorizontalSpace(float width, float proportion = 0.0f, LFlag flags = 0)
             {
                 this.AddSpace(new Vector2(width, 0.0f), proportion, flags);

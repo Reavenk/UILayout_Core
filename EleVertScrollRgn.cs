@@ -6,11 +6,28 @@ namespace PxPre
 {
     namespace UIL
     {
-        public class EleVertScrollRgn : EleBaseRect
+        public class EleVertScrollRgn : EleGenVertScrollRgn<UnityEngine.UI.ScrollRect, UnityEngine.UI.Scrollbar>
+        { 
+            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, Vector2 size, float sensitivity, string name = "")
+                : base(parent, horiz, vert, showBack, size, sensitivity, name)
+            { 
+                this._Create(parent, horiz, vert, showBack, size, sensitivity, name);
+            }
+
+            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity, string name = "")
+                : base(parent, horiz, vert, showBack, sensitivity, name)
+            { 
+                this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), sensitivity, name);
+            }
+        }
+
+        public class EleGenVertScrollRgn<RectTy, ScrollTy> : EleBaseRect
+            where RectTy : UnityEngine.UI.ScrollRect
+            where ScrollTy : UnityEngine.UI.Scrollbar
         {
-            UnityEngine.UI.Scrollbar vertScroll;
-            UnityEngine.UI.Scrollbar horizScroll;
-            UnityEngine.UI.ScrollRect scrollRect;
+            ScrollTy vertScroll;
+            ScrollTy horizScroll;
+            RectTy scrollRect;
             UnityEngine.UI.Mask viewportMask;
 
             RectTransform rt;
@@ -28,13 +45,13 @@ namespace PxPre
 
             public override RectTransform RT => this.rt;
 
-            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, Vector2 size, float sensitivity, string name = "")
+            public EleGenVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, Vector2 size, float sensitivity, string name = "")
                 : base(parent, size, name)
             { 
                 this._Create(parent, horiz, vert, showBack, size, sensitivity, name);
             }
 
-            public EleVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity, string name = "")
+            public EleGenVertScrollRgn(EleBaseRect parent, ScrollInfo horiz, ScrollInfo vert, bool showBack, float sensitivity, string name = "")
                 : base(parent)
             { 
                 this._Create(parent, horiz, vert, showBack, new Vector2(-1.0f, -1.0f), sensitivity, name);
@@ -100,7 +117,7 @@ namespace PxPre
                 rtThumbVert.anchoredPosition = new Vector2(0.0f, 0.0f);
                 rtThumbVert.sizeDelta = new Vector2(0.0f, 0.0f);
 
-                UnityEngine.UI.Scrollbar sbVert = goScrollVert.AddComponent<UnityEngine.UI.Scrollbar>();
+                ScrollTy sbVert = goScrollVert.AddComponent<ScrollTy>();
                 sbVert.direction = UnityEngine.UI.Scrollbar.Direction.BottomToTop;
                 sbVert.targetGraphic = imgThumbVert;
                 sbVert.handleRect = rtThumbVert;
@@ -130,7 +147,7 @@ namespace PxPre
                 rtThumbHoriz.anchoredPosition = new Vector2(0.0f, 0.0f);
                 rtThumbHoriz.sizeDelta = new Vector2(0.0f, 0.0f);
 
-                UnityEngine.UI.Scrollbar sbHoriz = goScrollHoriz.AddComponent<UnityEngine.UI.Scrollbar>();
+                ScrollTy sbHoriz = goScrollHoriz.AddComponent<ScrollTy>();
                 sbHoriz.direction = UnityEngine.UI.Scrollbar.Direction.LeftToRight;
                 sbHoriz.targetGraphic = imgThumbHoriz;
                 sbHoriz.handleRect = rtThumbHoriz;
@@ -139,7 +156,7 @@ namespace PxPre
                 //      FINISH
                 ////////////////////////////////////////////////////////////////////////////////
 
-                UnityEngine.UI.ScrollRect scrollR = go.AddComponent<UnityEngine.UI.ScrollRect>();
+                RectTy scrollR = go.AddComponent<RectTy>();
                 scrollR.horizontalScrollbarVisibility = UnityEngine.UI.ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
                 scrollR.verticalScrollbarVisibility = UnityEngine.UI.ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
                 scrollR.viewport = rtViewport;

@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿// <copyright file="EleGridSizer.cs" company="Pixel Precision LLC">
+// Copyright (c) 2020 All Rights Reserved
+// </copyright>
+// <author>William Leu</author>
+// <date>09/25/2020</date>
+// <summary></summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -300,6 +307,15 @@ namespace PxPre
                 fy += this.border.bot;
 
                 return new Vector2(maxX, fy);
+            }
+
+            public override bool Destroy()
+            {
+                foreach(PairedLayoutData e in this.entries)
+                    e.ele.Destroy();
+
+                this.entries.Clear();
+                return true;
             }
         }
     }

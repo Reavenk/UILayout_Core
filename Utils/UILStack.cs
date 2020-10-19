@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿// <copyright file="UILStack.cs" company="Pixel Precision LLC">
+// Copyright (c) 2020 All Rights Reserved
+// </copyright>
+// <author>William Leu</author>
+// <date>09/25/2020</date>
+// <summary></summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -435,6 +442,30 @@ namespace PxPre
                 EleToggle tog = this.uiFactory.CreateToggle(this.head.rect, label);
                 szr.Add(tog, proportion, flags);
                 return tog;
+            }
+
+            public EleInput CreateInput(string starting, bool multiline)
+            { 
+                if(this.head.rect == null)
+                    return null;
+
+                EleInput input = this.uiFactory.CreateInput(this.head.rect, multiline);
+                return input;
+            }
+
+            public EleInput AddInput(string starting, bool multiline, float proportion, LFlag flags)
+            { 
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleInput input = this.uiFactory.CreateInput(this.head.rect, multiline);
+
+                if(string.IsNullOrEmpty(starting) == false)
+                    input.input.text = starting;
+
+                szr.Add(input, proportion, flags);
+                return input;
             }
 
             public ElePropGrid PushPropGrid(float proportion, LFlag flags)

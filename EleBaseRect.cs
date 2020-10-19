@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿// <copyright file="EleBaseRect.cs" company="Pixel Precision LLC">
+// Copyright (c) 2020 All Rights Reserved
+// </copyright>
+// <author>William Leu</author>
+// <date>09/25/2020</date>
+// <summary></summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -177,6 +184,27 @@ namespace PxPre
                     return rt;
 
                 return this.GetParentRect();
+            }
+
+            public override bool Destroy()
+            {
+                bool ret = false;
+                if(this.children != null && this.children.Count > 0)
+                { 
+                    foreach(EleBaseRect ebr in this.children)
+                        ebr.Destroy();
+
+                    this.children.Clear();
+                    ret = true;
+                }
+
+                RectTransform rt = this.RT;
+                if(rt != null)
+                { 
+                    GameObject.Destroy(rt.gameObject);
+                    ret = true;
+                }
+                return ret;
             }
         }
     }

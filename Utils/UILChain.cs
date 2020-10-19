@@ -15,6 +15,18 @@ public static class UILChain
         return img.Chn_SetImgType(UnityEngine.UI.Image.Type.Sliced);
     }
 
+    public static PxPre.UIL.EleImg Chn_SetColor(this PxPre.UIL.EleImg img, Color c)
+    { 
+        img.Img.color = c;
+        return img;
+    }
+
+    public static PxPre.UIL.EleText Chn_SetColor(this PxPre.UIL.EleText txt, Color c)
+    { 
+        txt.text.color = c;
+        return txt;
+    }
+
     public static PxPre.UIL.EleImg Chn_SetImgFillCenter(this PxPre.UIL.EleImg img, bool fillCenter)
     {
         img.Img.fillCenter = fillCenter;
@@ -51,9 +63,21 @@ public static class UILChain
         return txt;
     }
 
+    public static PxPre.UIL.EleText Chn_FontStyle(this PxPre.UIL.EleText txt, FontStyle style)
+    { 
+        txt.text.fontStyle = style;
+        return txt;
+    }
+
     public static PxPre.UIL.Ele Chn_MinSize(this PxPre.UIL.Ele e, Vector2 newMinSz)
     { 
         e.minSize = newMinSz;
+        return e;
+    }
+
+    public static PxPre.UIL.Ele Chn_MinSize(this PxPre.UIL.Ele e, float x, float y)
+    { 
+        e.minSize = new Vector2(x, y);
         return e;
     }
 }

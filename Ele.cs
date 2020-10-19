@@ -1,4 +1,11 @@
-﻿using System.Collections;
+﻿// <copyright file="Ele.cs" company="Pixel Precision LLC">
+// Copyright (c) 2020 All Rights Reserved
+// </copyright>
+// <author>William Leu</author>
+// <date>09/25/2020</date>
+// <summary></summary>
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -111,6 +118,9 @@ namespace PxPre
                 Dictionary<Ele, float> widths,
                 Vector2 rectOffset, Vector2 offset, Vector2 size,
                 bool collapsable = true);
+
+            public virtual bool Destroy()
+            { return true; }
         }
     }
 }

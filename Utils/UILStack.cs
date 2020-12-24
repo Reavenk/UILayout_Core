@@ -61,6 +61,11 @@ namespace PxPre
                 return head.rect.RT;
             }
 
+            public Factory GetFactory()
+            { 
+                return this.uiFactory;
+            }
+
             public UILStack(Factory factory, EleBaseRect rect, EleBaseSizer sizer)
             { 
                 this.uiFactory = factory;

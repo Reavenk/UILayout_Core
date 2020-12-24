@@ -51,6 +51,11 @@ namespace PxPre
                 return head.sizer;
             }
 
+            public EleBaseRect GetHeadRect()
+            { 
+                return this.head.rect;
+            }
+
             public RectTransform GetHeadRectTransform()
             { 
                 return head.rect.RT;

@@ -409,6 +409,18 @@ namespace PxPre
                 return ret;
             }
 
+            public EleTex CreateTex(EleBaseRect parent, Texture t, Vector2 size, string name = "")
+            {
+                EleTex ret = new EleTex(parent, t, size, name);
+                return ret;
+            }
+
+            public EleTex CreateTex(EleBaseRect parent, Texture t, string name = "")
+            {
+                EleTex ret = new EleTex(parent, t);
+                return ret;
+            }
+
             public ElePropGrid CreatePropertyGrid(EleBaseRect parent)
             { 
                 ElePropGrid epg = new ElePropGrid(parent, this.textTextAttrib);

@@ -254,6 +254,29 @@ namespace PxPre
                 return ret;
             }
 
+            public EleTex AddTexture(Texture texture, float proportion, LFlag flags)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleTex img = this.uiFactory.CreateTex(this.head.rect, texture);
+                szr.Add(img, proportion, flags);
+                return img;
+            }
+
+            public EleTex PushTexture(Texture texture, float proportion, LFlag flags)
+            {
+                EleTex ret = this.AddTexture(texture, proportion, flags);
+                if (ret == null)
+                    return null;
+
+                this.stack.Push(this.head);
+
+                this.head = new Entry(ret);
+                return ret;
+            }
+
             public EleButton AddButton(string text, float proportion, LFlag flags)
             {
                 EleBaseSizer szr = this.head.GetSizer();
@@ -543,6 +566,39 @@ namespace PxPre
                 EleSpace space = new EleSpace(sz);
                 szr.Add(space, proportion, flags);
                 return space;
+            }
+
+            public EleHeader AddHeader(string text)
+            {
+                EleBaseSizer szr = this.head.GetSizer();
+                if (szr == null)
+                    return null;
+
+                EleHeader header = 
+                    new EleHeader(
+                        this.head.rect, 
+                        text, 
+                        this.uiFactory.headerTextAttrib.font,
+                        this.uiFactory.headerTextAttrib.color,
+                        this.uiFactory.headerTextAttrib.fontSize,
+                        this.uiFactory.headerSprite,
+                        this.uiFactory.buttonPadding);
+
+                szr.Add(header, 0.0f, LFlag.GrowHoriz);
+
+                return header;
+            }
+
+            public EleHeader PushHeader(string text)
+            {
+                EleHeader ret = this.AddHeader(text);
+                if (ret == null)
+                    return null;
+
+                this.stack.Push(this.head);
+
+                this.head = new Entry(ret);
+                return ret;
             }
 
             public bool Pop()

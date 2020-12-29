@@ -126,7 +126,11 @@ namespace PxPre
                     float textWidth = tg.GetPreferredWidth(this.text.text, tgs);
                     float textHeight = tg.GetPreferredHeight(this.text.text, tgs);
 
-                    this.text.rectTransform.anchoredPosition = new Vector2(this.border.left, -this.border.top);
+                    this.text.rectTransform.anchoredPosition = 
+                        new Vector2(
+                            (size.x - textWidth) * 0.5f + (this.border.right - this.border.left) * 0.5f, 
+                            -this.border.top - (this.border.top - this.border.bot) * 0.5f);
+
                     this.text.rectTransform.sizeDelta = new Vector2(textWidth, textHeight);
                 }
 

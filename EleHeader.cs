@@ -93,7 +93,7 @@ namespace PxPre
 
                 if(this.HasChildren() == true)
                 { 
-                    Vector2 v2 = this.GetMinSize(cache, widths, width);
+                    Vector2 v2 = base.ImplCalcMinSize(cache, widths, width);
                     ret.x = Mathf.Max(ret.x, v2.x);
                     ret.y = Mathf.Max(ret.y, v2.y);
                 }
@@ -137,8 +137,6 @@ namespace PxPre
                 if(this.HasChildren() == true)
                 { 
                     Vector2 internalSz = size;
-                    internalSz.x -= this.border.width;
-                    internalSz.y -= this.border.height;
                     base.Layout(cached, widths, rectOffset, offset, internalSz);
                 }
 

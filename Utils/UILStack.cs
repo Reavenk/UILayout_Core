@@ -211,6 +211,16 @@ namespace PxPre
                 return ret;
             }
 
+            public EleText AddWrapText(string text, int fontSize)
+            {
+                return this.AddText(text, fontSize, true, 0.0f, LFlag.GrowHoriz);
+            }
+
+            public EleText AddWrapText(string text)
+            {
+                return this.AddText(text, true, 0.0f, LFlag.GrowHoriz);
+            }
+
             public EleText CreateText(string text, bool wrap)
             {
                 if(this.head.rect == null)

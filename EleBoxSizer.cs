@@ -433,7 +433,14 @@ namespace PxPre
                 return true;
             }
 
-
+            public void DestroyChildren()
+            {
+                // The implementation is just Destory() (for now), but its different
+                // function and name is to signify that we still want EeleBoxSizer to
+                // be a valid entry in the LayoutHierarchy - but we want it to be 
+                // emptied.
+                this.Destroy();
+            }
         }
     }
 }

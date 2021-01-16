@@ -17,10 +17,19 @@ namespace PxPre
         {
             RectTransform rt;
 
-            public EleHost(RectTransform host, bool autolayout, string name = "")
+            public EleHost(RectTransform host, bool autolayout, bool clearPrev = true, string name = "")
                 : base(null, new Vector2(-1.0f, -1.0f), name)
             { 
                 this.rt = host;
+
+                if(clearPrev == true)
+                {
+                    HostLayoutOnSizeChange [] hls = 
+                        host.gameObject.GetComponents<HostLayoutOnSizeChange>();
+
+                    foreach(HostLayoutOnSizeChange hl in hls)
+                        GameObject.Destroy(hl);
+                }
 
                 if(autolayout == true)
                     HostLayoutOnSizeChange.AttachHost(host.gameObject, this);

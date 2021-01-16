@@ -535,21 +535,5 @@ namespace PxPre.UIL
         { 
             return CreateToggle<ty>(parent, label, Vector2.zero, name);
         }
-
-        //public EleImg CreateHorizontalSpacer(Ele parent, int flags, Vector2 size)
-        //{ 
-        //}
-        //
-        //public EleImg CreateVerticalSpacer(Ele parent, int flags, Vector2 size)
-        //{ 
-        //}
-        //
-        //public EleScrollView CreateScrollView(Ele parent)
-        //{ 
-        //}
-        //
-        //public static CreateBoxSizer(Ele parent)
-        //{ 
-        //}
     }
 }
